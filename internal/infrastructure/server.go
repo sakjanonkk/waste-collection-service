@@ -40,8 +40,13 @@ func NewServer(version, buildTag, runEnv string) (server *Server, err error) {
 
 	// connect to DB
 	mainDbConn, err := datasources.ConnectDb(datasources.DbConfig{
-		DbDriver: "sqlite",
-		DbName:   viper.GetString("db.sqlite.db_name"),
+		DbDriver: "postgres",
+		DbName:   viper.GetString("db.postgres.db_name"),
+		Host:     viper.GetString("db.postgres.host"),
+		Port:     viper.GetInt("db.postgres.port"),
+		Username: viper.GetString("db.postgres.username"),
+		Password: viper.GetString("db.postgres.password"),
+		Timezone: "Asia/Bangkok",
 	})
 	if err != nil {
 		return
@@ -109,18 +114,18 @@ func (s *Server) Run() (err error) {
 	// Listen from a different goroutine
 
 	// Listen HTTP
-	// go func() {
-	// 	if err := app.Listen(":" + viper.GetString("app.port.http")); err != nil {
-	// 		log.Panic(err)
-	// 	}
-	// }()
-
-	// Listen HTTPS
 	go func() {
-		if err := app.ListenTLS(":"+viper.GetString("app.port.https"), viper.GetString("app.path.cert"), viper.GetString("app.path.priv")); err != nil {
+		if err := app.Listen(":" + viper.GetString("app.port.http")); err != nil {
 			log.Panic(err)
 		}
 	}()
+
+	// Listen HTTPS
+	// go func() {
+	// 	if err := app.ListenTLS(":"+viper.GetString("app.port.https"), viper.GetString("app.path.cert"), viper.GetString("app.path.priv")); err != nil {
+	// 		log.Panic(err)
+	// 	}
+	// }()
 
 	// Create channel to signify a signal being sent
 	quit := make(chan os.Signal, 1)
