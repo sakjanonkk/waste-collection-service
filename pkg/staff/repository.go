@@ -35,3 +35,28 @@ func (r *staffReposity) GetStaffs(pagination models.Pagination) (staffs []models
 	}
 	return staffs, paginated, nil
 }
+
+func (r *staffReposity) GetStaffByID(staffInput models.Staff) (staff models.Staff, err error) {
+	err = r.db.First(&staff, staffInput.ID).Error
+	if err != nil {
+		return staff, err
+	}
+	return staff, nil
+}
+
+func (r *staffReposity) UpdateStaff(staffInput models.Staff) (staff models.Staff, err error) {
+	err = r.db.Model(&models.Staff{}).Where("id = ?", staffInput.ID).Updates(staffInput).Error
+	if err != nil {
+		return staff, err
+	}
+	// อ่านกลับมาอีกรอบเพื่อคืนค่าเต็ม
+	err = r.db.First(&staff, staffInput.ID).Error
+	if err != nil {
+		return staff, err
+	}
+	return staff, nil
+}
+
+func (r *staffReposity) DeleteStaff(staffInput models.Staff) error {
+	return r.db.Delete(&models.Staff{}, staffInput.ID).Error
+}
