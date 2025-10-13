@@ -3,14 +3,15 @@ package infrastructure
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/zercle/gofiber-skelton/internal/handlers"
+	"github.com/zercle/gofiber-skelton/pkg/auth"
 	"github.com/zercle/gofiber-skelton/pkg/models"
 	"github.com/zercle/gofiber-skelton/pkg/staff"
+	"github.com/zercle/gofiber-skelton/pkg/vehicle"
 )
 
 // SetupRoutes is the Router for GoFiber App
 func (s *Server) SetupRoutes(app *fiber.App) {
 
-	// Prepare a static middleware to serve the built React files.
 	app.Static("/", "./web/build")
 
 	// API routes group
@@ -19,18 +20,44 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 		groupApiV1.Get("/", handlers.Index())
 	}
 
-	// App Repository
-	staffRepo := staff.NewStaffRepository(s.MainDbConn)
-
 	// auto migrate DB only on main process
 	if !fiber.IsChild() {
-		s.MainDbConn.AutoMigrate(models.Staff{})
+		s.MainDbConn.AutoMigrate(
+			&models.Staff{},
+			&models.Vehicle{},
+		)
 	}
-	// App Services
-	staffService := staff.NewStaffService(staffRepo)
-	// App Routes
-	staff.NewStaffHandler(groupApiV1.Group("/staff"), staffService)
 
-	// Prepare a fallback route to always serve the 'index.html', had there not be any matching routes.
+	// Repositories
+	staffRepo := staff.NewStaffRepository(s.MainDbConn)
+	vehicleRepo := vehicle.NewVehicleRepository(s.MainDbConn)
+
+	// Services
+	staffService := staff.NewStaffService(staffRepo)
+	vehicleService := vehicle.NewVehicleService(vehicleRepo)
+	authService := auth.NewAuthService(staffRepo, s.JwtResources)
+
+	// ============================================
+	// 🔓 Auth Routes (Public - No Authentication)
+	// ============================================
+	authGroup := groupApiV1.Group("/auth")
+	auth.NewAuthHandler(authGroup, authService, s.JwtResources)
+
+	// ============================================
+	// 🔐 Staff Routes (Protected - Authentication Required)
+	// ============================================
+	// Note: Fine-grained permissions (admin only, etc.) should be added
+	// as middleware in the NewStaffHandler or here
+	staffGroup := groupApiV1.Group("/staff")
+	staffGroup.Use(auth.AuthMiddleware(s.JwtResources)) // Require login for all staff routes
+	staff.NewStaffHandler(staffGroup, staffService)
+
+	// ============================================
+	// 🔐 Vehicle Routes (Protected - Authentication Required)
+	// ============================================
+	vehicleGroup := groupApiV1.Group("/vehicles")
+	vehicleGroup.Use(auth.AuthMiddleware(s.JwtResources)) // Require login for all vehicle routes
+	vehicle.NewVehicleHandler(vehicleGroup, vehicleService)
+
 	app.Static("*", "./web/build/index.html")
 }

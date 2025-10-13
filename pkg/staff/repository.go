@@ -6,15 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type staffReposity struct {
+type staffRepository struct {
 	db *gorm.DB
 }
 
-func NewStaffRepository(db *gorm.DB) domain.StaffReposity {
-	return &staffReposity{db: db}
+func NewStaffRepository(db *gorm.DB) domain.StaffRepository {
+	return &staffRepository{db: db}
 }
 
-func (r *staffReposity) CreateStaff(staffInput models.Staff) (staff models.Staff, err error) {
+func (r *staffRepository) CreateStaff(staffInput models.Staff) (staff models.Staff, err error) {
 	err = r.db.Create(&staffInput).Error
 	if err != nil {
 		return staff, err
@@ -22,7 +22,7 @@ func (r *staffReposity) CreateStaff(staffInput models.Staff) (staff models.Staff
 	return staffInput, nil
 }
 
-func (r *staffReposity) GetStaffs(pagination models.Pagination) (staffs []models.Staff, paginated models.Pagination, err error) {
+func (r *staffRepository) GetStaffs(pagination models.Pagination) (staffs []models.Staff, paginated models.Pagination, err error) {
 	var total int64
 	err = r.db.Model(&models.Staff{}).Count(&total).Error
 	if err != nil {
@@ -36,7 +36,7 @@ func (r *staffReposity) GetStaffs(pagination models.Pagination) (staffs []models
 	return staffs, paginated, nil
 }
 
-func (r *staffReposity) GetStaffByID(staffInput models.Staff) (staff models.Staff, err error) {
+func (r *staffRepository) GetStaffByID(staffInput models.Staff) (staff models.Staff, err error) {
 	err = r.db.First(&staff, staffInput.ID).Error
 	if err != nil {
 		return staff, err
@@ -44,7 +44,7 @@ func (r *staffReposity) GetStaffByID(staffInput models.Staff) (staff models.Staf
 	return staff, nil
 }
 
-func (r *staffReposity) UpdateStaff(staffInput models.Staff) (staff models.Staff, err error) {
+func (r *staffRepository) UpdateStaff(staffInput models.Staff) (staff models.Staff, err error) {
 	err = r.db.Model(&models.Staff{}).Where("id = ?", staffInput.ID).Updates(staffInput).Error
 	if err != nil {
 		return staff, err
@@ -57,6 +57,14 @@ func (r *staffReposity) UpdateStaff(staffInput models.Staff) (staff models.Staff
 	return staff, nil
 }
 
-func (r *staffReposity) DeleteStaff(staffInput models.Staff) error {
+func (r *staffRepository) DeleteStaff(staffInput models.Staff) error {
 	return r.db.Delete(&models.Staff{}, staffInput.ID).Error
+}
+
+func (r *staffRepository) GetStaffByEmail(email string) (staff models.Staff, err error) {
+	err = r.db.Where("email = ?", email).First(&staff).Error
+	if err != nil {
+		return staff, err
+	}
+	return staff, nil
 }

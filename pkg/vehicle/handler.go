@@ -1,7 +1,8 @@
-package staff
+package vehicle
 
 import (
-	"encoding/json" // ✅ เพิ่ม import นี้
+	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -11,39 +12,40 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/models"
 )
 
-type staffHandler struct {
-	service domain.StaffService
+type vehicleHandler struct {
+	service domain.VehicleService
 }
 
-func NewStaffHandler(router fiber.Router, service domain.StaffService) {
-	handler := &staffHandler{service: service}
+func NewVehicleHandler(router fiber.Router, service domain.VehicleService) {
+	handler := &vehicleHandler{service: service}
 
-	router.Post("/", handler.CreateStaff())
-	router.Get("/", handler.GetStaffs())
-	router.Get("/:id", handler.GetStaffByID())
-	router.Put("/:id", handler.UpdateStaff())
-	router.Delete("/:id", handler.DeleteStaff())
+	router.Post("/", handler.CreateVehicle())
+	router.Get("/", handler.GetVehicles())
+	router.Get("/:id", handler.GetVehicleByID())
+	router.Put("/:id", handler.UpdateVehicle())
+	router.Delete("/:id", handler.DeleteVehicle())
 }
 
-func (h *staffHandler) CreateStaff() fiber.Handler {
+func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var staffInput models.StaffInput
+		var vehicleInput models.VehicleInput
 
-		// ✅ เปลี่ยนจาก c.BodyParser() เป็น json.Unmarshal()
-		if err := json.Unmarshal(c.Body(), &staffInput); err != nil {
+		if err := json.Unmarshal(c.Body(), &vehicleInput); err != nil {
+			fmt.Printf("❌ Manual JSON Parse Error: %v\n", err)
 			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
 				Success: false,
 				Errors: []helpers.ResponseError{{
 					Code:    fiber.StatusBadRequest,
 					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: "Invalid request body: " + err.Error(),
+					Title:   "JSON Parse Error",
+					Message: err.Error(),
 				}},
 			})
 		}
 
-		// แปลง Input → Staff
-		staff, err := h.service.CreateStaff(staffInput.ToStaff())
+		vehicleData := vehicleInput.ToVehicle()
+
+		vehicle, err := h.service.CreateVehicle(vehicleData)
 		if err != nil {
 			statusCode := fiber.StatusInternalServerError
 			title := "Internal Server Error"
@@ -73,27 +75,26 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 
 		return c.Status(fiber.StatusCreated).JSON(helpers.ResponseForm{
 			Success: true,
-			Data:    staff,
+			Data:    vehicle,
 		})
 	}
 }
 
-func (h *staffHandler) GetStaffs() fiber.Handler {
+func (h *vehicleHandler) GetVehicles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var pagination models.Pagination
-		if err := c.QueryParser(&pagination); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: err.Error(),
-				}},
-			})
+		pagination := models.Pagination{
+			Page:    1,  // ✅ default
+			PerPage: 10, // ✅ default
 		}
 
-		staffs, paginated, err := h.service.GetStaffs(pagination)
+		_ = c.QueryParser(&pagination)
+
+		// ✅ เพิ่ม max limit
+		if pagination.PerPage > 100 {
+			pagination.PerPage = 100
+		}
+
+		vehicles, paginated, err := h.service.GetVehicles(pagination)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
 				Success: false,
@@ -111,17 +112,17 @@ func (h *staffHandler) GetStaffs() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
 			Success: true,
 			Data: fiber.Map{
-				"staffs":     staffs,
+				"vehicles":   vehicles,
 				"pagination": paginated,
 			},
 		})
 	}
 }
 
-func (h *staffHandler) GetStaffByID() fiber.Handler {
+func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var staffInput models.Staff
-		if err := c.ParamsParser(&staffInput); err != nil {
+		var vehicleInput models.Vehicle
+		if err := c.ParamsParser(&vehicleInput); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
 				Success: false,
 				Errors: []helpers.ResponseError{{
@@ -133,7 +134,7 @@ func (h *staffHandler) GetStaffByID() fiber.Handler {
 			})
 		}
 
-		staff, err := h.service.GetStaffByID(staffInput)
+		vehicle, err := h.service.GetVehicleByID(vehicleInput)
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(helpers.ResponseForm{
 				Success: false,
@@ -148,25 +149,24 @@ func (h *staffHandler) GetStaffByID() fiber.Handler {
 
 		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
 			Success: true,
-			Data:    staff,
+			Data:    vehicle,
 		})
 	}
 }
 
-func (h *staffHandler) UpdateStaff() fiber.Handler {
+func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
-		var staffInput models.StaffInput
+		var vehicleInput models.VehicleInput
 
-		// ✅ เปลี่ยนเป็น json.Unmarshal()
-		if err := json.Unmarshal(c.Body(), &staffInput); err != nil {
+		if err := json.Unmarshal(c.Body(), &vehicleInput); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
 				Success: false,
 				Errors: []helpers.ResponseError{{
 					Code:    fiber.StatusBadRequest,
 					Source:  helpers.WhereAmI(),
 					Title:   "Bad Request",
-					Message: err.Error(),
+					Message: "Invalid request body: " + err.Error(),
 				}},
 			})
 		}
@@ -184,17 +184,37 @@ func (h *staffHandler) UpdateStaff() fiber.Handler {
 			})
 		}
 
-		staffData := staffInput.ToStaff()
-		staffData.ID = uint(parsedID)
+		vehicleData := vehicleInput.ToVehicle()
+		vehicleData.ID = uint(parsedID)
 
-		staff, err := h.service.UpdateStaff(staffData)
+		vehicle, err := h.service.UpdateVehicle(vehicleData)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+			// ✅ แยก error type
+			statusCode := fiber.StatusInternalServerError
+			title := "Internal Server Error"
+
+			errMsg := err.Error()
+			if strings.Contains(errMsg, "not found") {
+				statusCode = fiber.StatusNotFound
+				title = "Not Found"
+			} else if strings.Contains(errMsg, "required") ||
+				strings.Contains(errMsg, "invalid") ||
+				strings.Contains(errMsg, "must be") ||
+				strings.Contains(errMsg, "cannot be negative") {
+				statusCode = fiber.StatusBadRequest
+				title = "Validation Error"
+			} else if strings.Contains(errMsg, "duplicate") ||
+				strings.Contains(errMsg, "UNIQUE constraint") {
+				statusCode = fiber.StatusConflict
+				title = "Duplicate Entry"
+			}
+
+			return c.Status(statusCode).JSON(helpers.ResponseForm{
 				Success: false,
 				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusInternalServerError,
+					Code:    statusCode,
 					Source:  helpers.WhereAmI(),
-					Title:   "Internal Server Error",
+					Title:   title,
 					Message: err.Error(),
 				}},
 			})
@@ -202,15 +222,15 @@ func (h *staffHandler) UpdateStaff() fiber.Handler {
 
 		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
 			Success: true,
-			Data:    staff,
+			Data:    vehicle,
 		})
 	}
 }
 
-func (h *staffHandler) DeleteStaff() fiber.Handler {
+func (h *vehicleHandler) DeleteVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
-		var staffInput models.Staff
+		var vehicleInput models.Vehicle
 
 		parsedID, err := strconv.ParseUint(id, 10, 64)
 		if err != nil {
@@ -224,16 +244,25 @@ func (h *staffHandler) DeleteStaff() fiber.Handler {
 				}},
 			})
 		}
-		staffInput.ID = uint(parsedID)
+		vehicleInput.ID = uint(parsedID)
 
-		err = h.service.DeleteStaff(staffInput)
+		err = h.service.DeleteVehicle(vehicleInput)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+			// ✅ แยก error type
+			statusCode := fiber.StatusInternalServerError
+			title := "Internal Server Error"
+
+			if strings.Contains(err.Error(), "not found") {
+				statusCode = fiber.StatusNotFound
+				title = "Not Found"
+			}
+
+			return c.Status(statusCode).JSON(helpers.ResponseForm{
 				Success: false,
 				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusInternalServerError,
+					Code:    statusCode,
 					Source:  helpers.WhereAmI(),
-					Title:   "Internal Server Error",
+					Title:   title,
 					Message: err.Error(),
 				}},
 			})
@@ -241,7 +270,7 @@ func (h *staffHandler) DeleteStaff() fiber.Handler {
 
 		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
 			Success: true,
-			Data:    "Staff deleted successfully",
+			Data:    "Vehicle deleted successfully",
 		})
 	}
 }

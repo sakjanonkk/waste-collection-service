@@ -52,6 +52,24 @@ func NewServer(version, buildTag, runEnv string) (server *Server, err error) {
 		return
 	}
 
+	// ✅ Seed default admin
+	if err = SeedDefaultAdmin(mainDbConn); err != nil {
+		log.Printf("⚠️ Warning: Failed to seed admin: %v", err)
+		// ไม่ return error เพื่อให้ server รันต่อได้
+	}
+
+	// ✅ Seed test data (เฉพาะ development)
+	// ตรวจสอบ runEnv หรือ viper.GetString("app.env")
+	if runEnv == "dev" || viper.GetString("app.env") == "development" {
+		log.Println("🌱 Development mode: Seeding test data...")
+		if err = SeedTestData(mainDbConn); err != nil {
+			log.Printf("⚠️ Warning: Failed to seed test data: %v", err)
+			// ไม่ return error เพื่อให้ server รันต่อได้
+		}
+	} else {
+		log.Println("⏭️  Production mode: Skipping test data seeding")
+	}
+
 	// server.RedisStorage, err = connectToRedis()
 	// if err != nil {
 	// 	return
