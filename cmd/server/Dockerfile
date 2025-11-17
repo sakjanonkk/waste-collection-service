@@ -50,10 +50,11 @@ COPY --from=builder /usr/bin/tini-static /usr/bin/tini
 COPY --from=builder /app/dist/server /app/server
 COPY ./configs /app/configs
 COPY ./internal/assets /app/internal/assets
-# COPY ./web /app/web
+COPY ./web /app/web
 
 EXPOSE 8080 8443
 
 # default run entrypoint
-ENTRYPOINT ["dumb-init", "--", "/app/server"]
-CMD ["--env=prd"]
+ENTRYPOINT ["tini", "--", "/app/server"]
+# CMD ["--env=prd"]
+CMD ["--env=dev"]
