@@ -83,13 +83,12 @@ func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 func (h *vehicleHandler) GetVehicles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		pagination := models.Pagination{
-			Page:    1,  // ✅ default
-			PerPage: 10, // ✅ default
+			Page:    1,  // default
+			PerPage: 10, // default
 		}
 
 		_ = c.QueryParser(&pagination)
 
-		// ✅ เพิ่ม max limit
 		if pagination.PerPage > 100 {
 			pagination.PerPage = 100
 		}

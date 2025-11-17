@@ -29,7 +29,6 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var staffInput models.StaffInput
 
-		// ✅ เปลี่ยนจาก c.BodyParser() เป็น json.Unmarshal()
 		if err := json.Unmarshal(c.Body(), &staffInput); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
 				Success: false,
@@ -42,7 +41,6 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 			})
 		}
 
-		// แปลง Input → Staff
 		staff, err := h.service.CreateStaff(staffInput.ToStaff())
 		if err != nil {
 			statusCode := fiber.StatusInternalServerError

@@ -25,7 +25,6 @@ func (s *vehicleService) CreateVehicle(vehicleInput models.Vehicle) (vehicle mod
 	return s.repo.CreateVehicle(vehicleInput)
 }
 
-// ✅ Validation function
 func (s *vehicleService) validateVehicle(vehicle models.Vehicle) error {
 	// Required fields
 	if strings.TrimSpace(vehicle.RegistrationNumber) == "" {

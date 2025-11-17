@@ -32,7 +32,6 @@ func (r *vehicleRepository) GetVehicles(pagination models.Pagination) (vehicles 
 	}
 	paginated.Total = total
 
-	// ✅ เพิ่ม Preload เพื่อดึง driver info
 	err = r.db.Preload("Driver").
 		Limit(pagination.PerPage).
 		Offset((pagination.Page - 1) * pagination.PerPage).

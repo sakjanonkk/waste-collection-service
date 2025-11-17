@@ -29,7 +29,7 @@ type Vehicle struct {
 type VehicleInput struct {
 	RegistrationNumber        string  `json:"registration_number"`
 	VehicleType               string  `json:"vehicle_type"`
-	Status                    string  `json:"status"` // ✅ ใช้ string แทน VehicleStatus
+	Status                    string  `json:"status"`
 	RegularWasteCapacityKg    float64 `json:"regular_waste_capacity_kg"`
 	RecyclableWasteCapacityKg float64 `json:"recyclable_waste_capacity_kg"`
 	CurrentDriverID           *uint   `json:"current_driver_id,omitempty"`
@@ -42,7 +42,7 @@ func (input *VehicleInput) ToVehicle() Vehicle {
 	return Vehicle{
 		RegistrationNumber:        input.RegistrationNumber,
 		VehicleType:               input.VehicleType,
-		Status:                    VehicleStatus(input.Status), // แปลง string → VehicleStatus
+		Status:                    VehicleStatus(input.Status),
 		RegularWasteCapacityKg:    input.RegularWasteCapacityKg,
 		RecyclableWasteCapacityKg: input.RecyclableWasteCapacityKg,
 		CurrentDriverID:           input.CurrentDriverID,

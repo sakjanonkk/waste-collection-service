@@ -24,15 +24,14 @@ const (
 	StatusStaffOnLeave  StaffStatus = "on_leave"
 )
 
-// ✅ Main Staff model (สำหรับ DB และ Response)
 type Staff struct {
 	ID          uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Prefix      string         `json:"prefix" gorm:"column:prefix;not null"`
 	FirstName   string         `json:"firstname" gorm:"column:firstname;not null"`
 	LastName    string         `json:"lastname" gorm:"column:lastname;not null"`
 	Email       string         `json:"email" gorm:"column:email;not null;unique"`
-	Password    string         `json:"-" gorm:"column:password;not null"` // ไม่ return ใน response
-	Role        StaffRole      `json:"role" gorm:"column:role;not null"`
+	Password    string         `json:"-" gorm:"column:password;not null"`
+	Role        StaffRole      `json:"role" gorm:"column:role;not null"` // ไม่ return ใน response
 	Status      StaffStatus    `json:"status" gorm:"column:status;not null"`
 	PhoneNumber string         `json:"phone_number" gorm:"column:phone;not null"`
 	CreatedAt   time.Time      `json:"created_at" gorm:"autoCreateTime"`
@@ -40,19 +39,17 @@ type Staff struct {
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-// ✅ Input struct สำหรับ Create/Update (รับ password ได้)
 type StaffInput struct {
 	Prefix      string      `json:"prefix"`
 	FirstName   string      `json:"firstname"`
 	LastName    string      `json:"lastname"`
 	Email       string      `json:"email"`
-	Password    string      `json:"password"` // ✅ รับ password ได้
+	Password    string      `json:"password"`
 	Role        StaffRole   `json:"role"`
 	Status      StaffStatus `json:"status"`
 	PhoneNumber string      `json:"phone_number"`
 }
 
-// Helper: แปลง StaffInput → Staff
 func (input *StaffInput) ToStaff() Staff {
 	return Staff{
 		Prefix:      input.Prefix,

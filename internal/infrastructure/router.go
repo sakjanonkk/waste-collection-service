@@ -37,24 +37,16 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
 	authService := auth.NewAuthService(staffRepo, s.JwtResources)
 
-	// ============================================
 	// 🔓 Auth Routes (Public - No Authentication)
-	// ============================================
 	authGroup := groupApiV1.Group("/auth")
 	auth.NewAuthHandler(authGroup, authService, s.JwtResources)
 
-	// ============================================
 	// 🔐 Staff Routes (Protected - Authentication Required)
-	// ============================================
-	// Note: Fine-grained permissions (admin only, etc.) should be added
-	// as middleware in the NewStaffHandler or here
 	staffGroup := groupApiV1.Group("/staff")
-	staffGroup.Use(auth.AuthMiddleware(s.JwtResources)) // Require login for all staff routes
+	staffGroup.Use(auth.AuthMiddleware(s.JwtResources))
 	staff.NewStaffHandler(staffGroup, staffService)
 
-	// ============================================
 	// 🔐 Vehicle Routes (Protected - Authentication Required)
-	// ============================================
 	vehicleGroup := groupApiV1.Group("/vehicles")
 	vehicleGroup.Use(auth.AuthMiddleware(s.JwtResources)) // Require login for all vehicle routes
 	vehicle.NewVehicleHandler(vehicleGroup, vehicleService)

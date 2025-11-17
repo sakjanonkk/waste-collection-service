@@ -126,7 +126,6 @@ func (h *authHandler) ChangePassword() fiber.Handler {
 			NewPassword string `json:"new_password"`
 		}
 
-		// ✅ เปลี่ยนเป็น json.Unmarshal
 		if err := json.Unmarshal(c.Body(), &req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
 				Success: false,

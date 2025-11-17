@@ -42,7 +42,6 @@ func AuthMiddleware(jwtResources *models.JwtResources) fiber.Handler {
 
 		tokenString := parts[1]
 
-		// ✅ เรียกใช้ ValidateToken จาก package เดียวกัน
 		claims, err := ValidateToken(jwtResources, tokenString)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(helpers.ResponseForm{
