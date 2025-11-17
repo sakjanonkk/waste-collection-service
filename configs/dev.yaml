@@ -23,7 +23,7 @@ db:
       max: 2
   postgres:
     sock: "/var/run/postgresql"
-    host: "localhost"
+    host: "43.229.135.49"
     port: 5432
     username: "postgres"
     password: "1234"
