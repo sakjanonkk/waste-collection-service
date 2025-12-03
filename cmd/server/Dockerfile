@@ -49,6 +49,7 @@ COPY --from=builder /usr/bin/tini-static /usr/bin/tini
 COPY --from=builder /app/dist/server /app/server
 COPY ./configs /app/configs
 COPY ./internal/assets /app/internal/assets
+COPY ./uploads /app/uploads
 EXPOSE 8080 8443
 
 # default run entrypoint
