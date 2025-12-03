@@ -700,6 +700,9 @@ paths:
       summary: Update a vehicle
       tags:
       - vehicles
+schemes:
+- http
+- https
 securityDefinitions:
   ApiKeyAuth:
     in: header

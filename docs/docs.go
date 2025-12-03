@@ -1154,7 +1154,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "Waste Management Service API",
 	Description:      "This is the API documentation for the Waste Management Service.",
 	InfoInstanceName: "swagger",
