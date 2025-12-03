@@ -24,6 +24,17 @@ func NewAuthHandler(router fiber.Router, service domain.AuthService, jwtResource
 	router.Put("/change-password", AuthMiddleware(jwtResources), handler.ChangePassword())
 }
 
+// Login godoc
+// @Summary Login to the system
+// @Description Login with email and password to get a JWT token
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param login body models.LoginRequest true "Login Credentials"
+// @Success 200 {object} helpers.ResponseForm{data=models.LoginResponse}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 401 {object} helpers.ResponseForm
+// @Router /auth/login [post]
 func (h *authHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var loginReq models.LoginRequest
@@ -79,6 +90,16 @@ func (h *authHandler) Login() fiber.Handler {
 	}
 }
 
+// GetMe godoc
+// @Summary Get current user info
+// @Description Get details of the currently logged-in user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} helpers.ResponseForm{data=models.Staff}
+// @Failure 401 {object} helpers.ResponseForm
+// @Router /auth/me [get]
 func (h *authHandler) GetMe() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get authenticated user from context
@@ -117,6 +138,17 @@ func (h *authHandler) GetMe() fiber.Handler {
 
 }
 
+// ChangePassword godoc
+// @Summary Change password
+// @Description Change the password for the current user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param body body object{old_password=string,new_password=string} true "Password Change Request"
+// @Success 200 {object} helpers.ResponseForm
+// @Failure 400 {object} helpers.ResponseForm
+// @Router /auth/change-password [put]
 func (h *authHandler) ChangePassword() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		authUser, _ := GetAuthUser(c)

@@ -9,6 +9,23 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/config"
 )
 
+// @title Waste Management Service API
+// @version 1.0
+// @description This is the API documentation for the Waste Management Service.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 var (
 	version string
 	build   string

@@ -26,6 +26,19 @@ func NewVehicleHandler(router fiber.Router, service domain.VehicleService) {
 	router.Delete("/:id", handler.DeleteVehicle())
 }
 
+// CreateVehicle godoc
+// @Summary Create a new vehicle
+// @Description Create a new vehicle with the provided details
+// @Tags vehicles
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param vehicle body models.VehicleInput true "Vehicle Data"
+// @Success 201 {object} helpers.ResponseForm{data=models.Vehicle}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 409 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /vehicles [post]
 func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var vehicleInput models.VehicleInput
@@ -80,6 +93,18 @@ func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	}
 }
 
+// GetVehicles godoc
+// @Summary Get all vehicles
+// @Description Get a list of all vehicles with pagination
+// @Tags vehicles
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param page query int false "Page number"
+// @Param per_page query int false "Items per page"
+// @Success 200 {object} helpers.ResponseForm{data=object{vehicles=[]models.Vehicle,pagination=models.Pagination}}
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /vehicles [get]
 func (h *vehicleHandler) GetVehicles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		pagination := models.Pagination{
@@ -118,6 +143,18 @@ func (h *vehicleHandler) GetVehicles() fiber.Handler {
 	}
 }
 
+// GetVehicleByID godoc
+// @Summary Get a vehicle by ID
+// @Description Get details of a specific vehicle by its ID
+// @Tags vehicles
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Vehicle ID"
+// @Success 200 {object} helpers.ResponseForm{data=models.Vehicle}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 404 {object} helpers.ResponseForm
+// @Router /vehicles/{id} [get]
 func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var vehicleInput models.Vehicle
@@ -153,6 +190,21 @@ func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 	}
 }
 
+// UpdateVehicle godoc
+// @Summary Update a vehicle
+// @Description Update details of an existing vehicle
+// @Tags vehicles
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Vehicle ID"
+// @Param vehicle body models.VehicleInput true "Vehicle Data"
+// @Success 200 {object} helpers.ResponseForm{data=models.Vehicle}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 404 {object} helpers.ResponseForm
+// @Failure 409 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /vehicles/{id} [put]
 func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -226,6 +278,19 @@ func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 	}
 }
 
+// DeleteVehicle godoc
+// @Summary Delete a vehicle
+// @Description Delete a vehicle by its ID
+// @Tags vehicles
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Vehicle ID"
+// @Success 200 {object} helpers.ResponseForm{data=string}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 404 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /vehicles/{id} [delete]
 func (h *vehicleHandler) DeleteVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")

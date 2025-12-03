@@ -25,6 +25,19 @@ func NewStaffHandler(router fiber.Router, service domain.StaffService) {
 	router.Delete("/:id", handler.DeleteStaff())
 }
 
+// CreateStaff godoc
+// @Summary Create a new staff member
+// @Description Create a new staff member with the provided details
+// @Tags staff
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param staff body models.StaffInput true "Staff Data"
+// @Success 201 {object} helpers.ResponseForm{data=models.Staff}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 409 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /staff [post]
 func (h *staffHandler) CreateStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var staffInput models.StaffInput
@@ -76,6 +89,19 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 	}
 }
 
+// GetStaffs godoc
+// @Summary Get all staff members
+// @Description Get a list of all staff members with pagination
+// @Tags staff
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param page query int false "Page number"
+// @Param per_page query int false "Items per page"
+// @Success 200 {object} helpers.ResponseForm{data=object{staffs=[]models.Staff,pagination=models.Pagination}}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /staff [get]
 func (h *staffHandler) GetStaffs() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var pagination models.Pagination
@@ -116,6 +142,18 @@ func (h *staffHandler) GetStaffs() fiber.Handler {
 	}
 }
 
+// GetStaffByID godoc
+// @Summary Get a staff member by ID
+// @Description Get details of a specific staff member by their ID
+// @Tags staff
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Staff ID"
+// @Success 200 {object} helpers.ResponseForm{data=models.Staff}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 404 {object} helpers.ResponseForm
+// @Router /staff/{id} [get]
 func (h *staffHandler) GetStaffByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var staffInput models.Staff
@@ -151,6 +189,19 @@ func (h *staffHandler) GetStaffByID() fiber.Handler {
 	}
 }
 
+// UpdateStaff godoc
+// @Summary Update a staff member
+// @Description Update details of an existing staff member
+// @Tags staff
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Staff ID"
+// @Param staff body models.StaffInput true "Staff Data"
+// @Success 200 {object} helpers.ResponseForm{data=models.Staff}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /staff/{id} [put]
 func (h *staffHandler) UpdateStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -205,6 +256,18 @@ func (h *staffHandler) UpdateStaff() fiber.Handler {
 	}
 }
 
+// DeleteStaff godoc
+// @Summary Delete a staff member
+// @Description Delete a staff member by their ID
+// @Tags staff
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Staff ID"
+// @Success 200 {object} helpers.ResponseForm{data=string}
+// @Failure 400 {object} helpers.ResponseForm
+// @Failure 500 {object} helpers.ResponseForm
+// @Router /staff/{id} [delete]
 func (h *staffHandler) DeleteStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")

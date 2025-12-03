@@ -1,0 +1,708 @@
+basePath: /api/v1
+definitions:
+  github_com_zercle_gofiber-skelton_pkg_models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.LoginResponse:
+    properties:
+      staff:
+        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+      token:
+        type: string
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.Pagination:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.Staff:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      firstname:
+        type: string
+      id:
+        type: integer
+      lastname:
+        type: string
+      phone_number:
+        type: string
+      prefix:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.StaffRole'
+        description: ไม่ return ใน response
+      status:
+        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.StaffStatus'
+      updated_at:
+        type: string
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.StaffInput:
+    properties:
+      email:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      prefix:
+        type: string
+      role:
+        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.StaffRole'
+      status:
+        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.StaffStatus'
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.StaffRole:
+    enum:
+    - admin
+    - route_manager
+    - driver
+    - collector
+    - citizen
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleRouteManager
+    - RoleDriver
+    - RoleCollector
+    - RoleCitizen
+  github_com_zercle_gofiber-skelton_pkg_models.StaffStatus:
+    enum:
+    - active
+    - inactive
+    - on_leave
+    type: string
+    x-enum-varnames:
+    - StatusStaffActive
+    - StatusStaffInactive
+    - StatusStaffOnLeave
+  github_com_zercle_gofiber-skelton_pkg_models.Vehicle:
+    properties:
+      created_at:
+        type: string
+      current_driver_id:
+        type: integer
+      depreciation_value_per_year:
+        type: number
+      driver:
+        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+      fuel_type:
+        type: string
+      id:
+        type: integer
+      last_reported_problem:
+        type: string
+      recyclable_waste_capacity_kg:
+        type: number
+      registration_number:
+        type: string
+      regular_waste_capacity_kg:
+        type: number
+      status:
+        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.VehicleStatus'
+      updated_at:
+        type: string
+      vehicle_type:
+        type: string
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.VehicleInput:
+    properties:
+      current_driver_id:
+        type: integer
+      depreciation_value_per_year:
+        type: number
+      fuel_type:
+        type: string
+      last_reported_problem:
+        type: string
+      recyclable_waste_capacity_kg:
+        type: number
+      registration_number:
+        type: string
+      regular_waste_capacity_kg:
+        type: number
+      status:
+        type: string
+      vehicle_type:
+        type: string
+    type: object
+  github_com_zercle_gofiber-skelton_pkg_models.VehicleStatus:
+    enum:
+    - active
+    - in_maintenance
+    - decommissioned
+    type: string
+    x-enum-varnames:
+    - StatusActive
+    - StatusInMaintenance
+    - StatusDecommissioned
+  helpers.ResponseError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      source: {}
+      title:
+        type: string
+    type: object
+  helpers.ResponseForm:
+    properties:
+      data: {}
+      errors:
+        items:
+          $ref: '#/definitions/helpers.ResponseError'
+        type: array
+      messages:
+        items:
+          type: string
+        type: array
+      result: {}
+      result_info:
+        $ref: '#/definitions/helpers.ResultInfo'
+      success:
+        type: boolean
+    type: object
+  helpers.ResultInfo:
+    properties:
+      count:
+        type: integer
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total_count:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+  description: This is the API documentation for the Waste Management Service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Waste Management Service API
+  version: "1.0"
+paths:
+  /auth/change-password:
+    put:
+      consumes:
+      - application/json
+      description: Change the password for the current user
+      parameters:
+      - description: Password Change Request
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            new_password:
+              type: string
+            old_password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Change password
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password to get a JWT token
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      summary: Login to the system
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get details of the currently logged-in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Get current user info
+      tags:
+      - auth
+  /staff:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all staff members with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  properties:
+                    pagination:
+                      $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Pagination'
+                    staffs:
+                      items:
+                        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+                      type: array
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all staff members
+      tags:
+      - staff
+    post:
+      consumes:
+      - application/json
+      description: Create a new staff member with the provided details
+      parameters:
+      - description: Staff Data
+        in: body
+        name: staff
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.StaffInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new staff member
+      tags:
+      - staff
+  /staff/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a staff member by their ID
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a staff member
+      tags:
+      - staff
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific staff member by their ID
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a staff member by ID
+      tags:
+      - staff
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing staff member
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Staff Data
+        in: body
+        name: staff
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.StaffInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Staff'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a staff member
+      tags:
+      - staff
+  /vehicles:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all vehicles with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  properties:
+                    pagination:
+                      $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Pagination'
+                    vehicles:
+                      items:
+                        $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Vehicle'
+                      type: array
+                  type: object
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all vehicles
+      tags:
+      - vehicles
+    post:
+      consumes:
+      - application/json
+      description: Create a new vehicle with the provided details
+      parameters:
+      - description: Vehicle Data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.VehicleInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Vehicle'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new vehicle
+      tags:
+      - vehicles
+  /vehicles/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a vehicle by its ID
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a vehicle
+      tags:
+      - vehicles
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific vehicle by its ID
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Vehicle'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a vehicle by ID
+      tags:
+      - vehicles
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing vehicle
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Vehicle Data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.VehicleInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseForm'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_zercle_gofiber-skelton_pkg_models.Vehicle'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ResponseForm'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a vehicle
+      tags:
+      - vehicles
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

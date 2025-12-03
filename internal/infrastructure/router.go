@@ -7,6 +7,9 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/models"
 	"github.com/zercle/gofiber-skelton/pkg/staff"
 	"github.com/zercle/gofiber-skelton/pkg/vehicle"
+
+	"github.com/gofiber/swagger"
+	_ "github.com/zercle/gofiber-skelton/docs"
 )
 
 // SetupRoutes is the Router for GoFiber App
@@ -19,6 +22,8 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	{
 		groupApiV1.Get("/", handlers.Index())
 	}
+
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// auto migrate DB only on main process
 	if !fiber.IsChild() {
