@@ -61,6 +61,13 @@ func NewServer(version, buildTag, runEnv string) (server *Server, err error) {
 		return
 	}
 
+	// Initialize MinIO connection
+	err = datasources.InitMinio()
+	if err != nil {
+		log.Printf("Warning: MinIO initialization failed: %v", err)
+		// Don't return error - allow app to run without MinIO
+	}
+
 	// init app resources
 	server.Resources = NewResources(fastHTTPClient, mainDbConn, nil, nil, jwtResources)
 

@@ -1,17 +1,16 @@
 package staff
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	helpers "github.com/zercle/gofiber-helpers"
 	"github.com/zercle/gofiber-skelton/pkg/domain"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/utils"
 )
 
 type staffHandler struct {
@@ -62,25 +61,11 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 		// Handle file upload
 		file, err := c.FormFile("picture")
 		if err == nil {
-			// Generate unique filename
-			ext := filepath.Ext(file.Filename)
-			filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
-			path := fmt.Sprintf("./uploads/%s", filename)
-
-			// Save file
-			if err := c.SaveFile(file, path); err != nil {
-				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
-					Success: false,
-					Errors: []helpers.ResponseError{{
-						Code:    fiber.StatusInternalServerError,
-						Source:  helpers.WhereAmI(),
-						Title:   "File Upload Error",
-						Message: "Failed to save picture: " + err.Error(),
-					}},
-				})
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return err
 			}
-			// Store relative path (accessible via web)
-			staffInput.Picture = "/uploads/" + filename
+			staffInput.Picture = url
 		}
 
 		staff, err := h.service.CreateStaff(staffInput.ToStaff())
