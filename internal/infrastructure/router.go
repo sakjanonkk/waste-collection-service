@@ -16,6 +16,7 @@ import (
 func (s *Server) SetupRoutes(app *fiber.App) {
 
 	app.Static("/", "./web/build")
+	app.Static("/uploads", "./uploads")
 
 	// API routes group
 	groupApiV1 := app.Group("/api/v:version?", handlers.ApiLimiter)

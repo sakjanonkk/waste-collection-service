@@ -151,9 +151,9 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a new staff member with the provided details",
+                "description": "Create a new staff member with the provided details. Supports file upload for picture.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -164,13 +164,65 @@ const docTemplate = `{
                 "summary": "Create a new staff member",
                 "parameters": [
                     {
-                        "description": "Staff Data",
-                        "name": "staff",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.StaffInput"
-                        }
+                        "type": "string",
+                        "description": "Prefix",
+                        "name": "prefix",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "First Name",
+                        "name": "firstname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Last Name",
+                        "name": "lastname",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Role",
+                        "name": "role",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone Number",
+                        "name": "phone_number",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Profile Picture",
+                        "name": "picture",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -460,6 +512,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone_number": {
+                    "type": "string"
+                },
+                "picture": {
                     "type": "string"
                 },
                 "prefix": {

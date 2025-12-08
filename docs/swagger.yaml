@@ -19,6 +19,8 @@ definitions:
         type: string
       phone_number:
         type: string
+      picture:
+        type: string
       prefix:
         type: string
       role:
@@ -163,15 +165,53 @@ paths:
       - staff
     post:
       consumes:
-      - application/json
-      description: Create a new staff member with the provided details
+      - multipart/form-data
+      description: Create a new staff member with the provided details. Supports file
+        upload for picture.
       parameters:
-      - description: Staff Data
-        in: body
-        name: staff
+      - description: Prefix
+        in: formData
+        name: prefix
+        type: string
+      - description: First Name
+        in: formData
+        name: firstname
         required: true
-        schema:
-          $ref: '#/definitions/models.StaffInput'
+        type: string
+      - description: Last Name
+        in: formData
+        name: lastname
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Role
+        in: formData
+        name: role
+        required: true
+        type: string
+      - description: Status
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Phone Number
+        in: formData
+        name: phone_number
+        required: true
+        type: string
+      - description: Profile Picture
+        in: formData
+        name: picture
+        type: file
       produces:
       - application/json
       responses: {}

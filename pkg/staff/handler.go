@@ -2,10 +2,13 @@ package staff
 
 import (
 	"encoding/json"
+	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	helpers "github.com/zercle/gofiber-helpers"
 	"github.com/zercle/gofiber-skelton/pkg/domain"
 	"github.com/zercle/gofiber-skelton/pkg/models"
@@ -27,27 +30,57 @@ func NewStaffHandler(router fiber.Router, service domain.StaffService) {
 
 // CreateStaff godoc
 // @Summary Create a new staff member
-// @Description Create a new staff member with the provided details
+// @Description Create a new staff member with the provided details. Supports file upload for picture.
 // @Tags staff
-// @Accept  json
+// @Accept  multipart/form-data
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param staff body models.StaffInput true "Staff Data"
+// @Param prefix formData string false "Prefix"
+// @Param firstname formData string true "First Name"
+// @Param lastname formData string true "Last Name"
+// @Param email formData string true "Email"
+// @Param password formData string true "Password"
+// @Param role formData string true "Role"
+// @Param status formData string true "Status"
+// @Param phone_number formData string true "Phone Number"
+// @Param picture formData file false "Profile Picture"
 // @Router /staff [post]
 func (h *staffHandler) CreateStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var staffInput models.StaffInput
 
-		if err := json.Unmarshal(c.Body(), &staffInput); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: "Invalid request body: " + err.Error(),
-				}},
-			})
+		// Parse form fields manually
+		staffInput.Prefix = c.FormValue("prefix")
+		staffInput.FirstName = c.FormValue("firstname")
+		staffInput.LastName = c.FormValue("lastname")
+		staffInput.Email = c.FormValue("email")
+		staffInput.Password = c.FormValue("password")
+		staffInput.Role = models.StaffRole(c.FormValue("role"))
+		staffInput.Status = models.StaffStatus(c.FormValue("status"))
+		staffInput.PhoneNumber = c.FormValue("phone_number")
+
+		// Handle file upload
+		file, err := c.FormFile("picture")
+		if err == nil {
+			// Generate unique filename
+			ext := filepath.Ext(file.Filename)
+			filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
+			path := fmt.Sprintf("./uploads/%s", filename)
+
+			// Save file
+			if err := c.SaveFile(file, path); err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+					Success: false,
+					Errors: []helpers.ResponseError{{
+						Code:    fiber.StatusInternalServerError,
+						Source:  helpers.WhereAmI(),
+						Title:   "File Upload Error",
+						Message: "Failed to save picture: " + err.Error(),
+					}},
+				})
+			}
+			// Store relative path (accessible via web)
+			staffInput.Picture = "/uploads/" + filename
 		}
 
 		staff, err := h.service.CreateStaff(staffInput.ToStaff())

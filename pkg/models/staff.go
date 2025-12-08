@@ -34,6 +34,7 @@ type Staff struct {
 	Role        StaffRole      `json:"role" gorm:"column:role;not null"` // ไม่ return ใน response
 	Status      StaffStatus    `json:"status" gorm:"column:status;not null"`
 	PhoneNumber string         `json:"phone_number" gorm:"column:phone;not null"`
+	Picture     string         `json:"picture" gorm:"column:picture"`
 	CreatedAt   time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
@@ -48,6 +49,7 @@ type StaffInput struct {
 	Role        StaffRole   `json:"role"`
 	Status      StaffStatus `json:"status"`
 	PhoneNumber string      `json:"phone_number"`
+	Picture     string      `json:"picture"`
 }
 
 func (input *StaffInput) ToStaff() Staff {
@@ -60,5 +62,6 @@ func (input *StaffInput) ToStaff() Staff {
 		Role:        input.Role,
 		Status:      input.Status,
 		PhoneNumber: input.PhoneNumber,
+		Picture:     input.Picture,
 	}
 }
