@@ -1,5 +1,55 @@
 basePath: /api/v1
 definitions:
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.StaffInput:
+    properties:
+      email:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      prefix:
+        type: string
+      role:
+        $ref: '#/definitions/models.StaffRole'
+      status:
+        $ref: '#/definitions/models.StaffStatus'
+    type: object
+  models.StaffRole:
+    enum:
+    - admin
+    - route_manager
+    - driver
+    - collector
+    - citizen
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleRouteManager
+    - RoleDriver
+    - RoleCollector
+    - RoleCitizen
+  models.StaffStatus:
+    enum:
+    - active
+    - inactive
+    - on_leave
+    type: string
+    x-enum-varnames:
+    - StatusStaffActive
+    - StatusStaffInactive
+    - StatusStaffOnLeave
   models.VehicleInput:
     properties:
       current_driver_id:
@@ -35,25 +85,162 @@ info:
 paths:
   /auth/change-password:
     put:
+      consumes:
+      - application/json
+      description: Change the password for the current user
+      parameters:
+      - description: Password Change Request
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            new_password:
+              type: string
+            old_password:
+              type: string
+          type: object
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Change password
+      tags:
+      - auth
   /auth/login:
     post:
+      consumes:
+      - application/json
+      description: Login with email and password to get a JWT token
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
       responses: {}
+      summary: Login to the system
+      tags:
+      - auth
   /auth/me:
     get:
+      consumes:
+      - application/json
+      description: Get details of the currently logged-in user
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get current user info
+      tags:
+      - auth
   /staff:
     get:
+      consumes:
+      - application/json
+      description: Get a list of all staff members with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get all staff members
+      tags:
+      - staff
     post:
+      consumes:
+      - application/json
+      description: Create a new staff member with the provided details
+      parameters:
+      - description: Staff Data
+        in: body
+        name: staff
+        required: true
+        schema:
+          $ref: '#/definitions/models.StaffInput'
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new staff member
+      tags:
+      - staff
   /staff/{id}:
     delete:
+      consumes:
+      - application/json
+      description: Delete a staff member by their ID
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a staff member
+      tags:
+      - staff
     get:
+      consumes:
+      - application/json
+      description: Get details of a specific staff member by their ID
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a staff member by ID
+      tags:
+      - staff
     put:
+      consumes:
+      - application/json
+      description: Update details of an existing staff member
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Staff Data
+        in: body
+        name: staff
+        required: true
+        schema:
+          $ref: '#/definitions/models.StaffInput'
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a staff member
+      tags:
+      - staff
   /vehicles:
     get:
       consumes:
