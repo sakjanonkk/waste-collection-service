@@ -34,10 +34,7 @@ func NewVehicleHandler(router fiber.Router, service domain.VehicleService) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param vehicle body models.VehicleInput true "Vehicle Data"
-// @Success 201 {object} helpers.ResponseForm{data=models.Vehicle}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 409 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /vehicles [post]
 func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -102,8 +99,7 @@ func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 // @Security ApiKeyAuth
 // @Param page query int false "Page number"
 // @Param per_page query int false "Items per page"
-// @Success 200 {object} helpers.ResponseForm{data=object{vehicles=[]models.Vehicle,pagination=models.Pagination}}
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /vehicles [get]
 func (h *vehicleHandler) GetVehicles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -151,9 +147,7 @@ func (h *vehicleHandler) GetVehicles() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
-// @Success 200 {object} helpers.ResponseForm{data=models.Vehicle}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 404 {object} helpers.ResponseForm
+
 // @Router /vehicles/{id} [get]
 func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -199,11 +193,7 @@ func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
 // @Param vehicle body models.VehicleInput true "Vehicle Data"
-// @Success 200 {object} helpers.ResponseForm{data=models.Vehicle}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 404 {object} helpers.ResponseForm
-// @Failure 409 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /vehicles/{id} [put]
 func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -286,10 +276,7 @@ func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
-// @Success 200 {object} helpers.ResponseForm{data=string}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 404 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /vehicles/{id} [delete]
 func (h *vehicleHandler) DeleteVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {

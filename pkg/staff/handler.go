@@ -33,10 +33,7 @@ func NewStaffHandler(router fiber.Router, service domain.StaffService) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param staff body models.StaffInput true "Staff Data"
-// @Success 201 {object} helpers.ResponseForm{data=models.Staff}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 409 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /staff [post]
 func (h *staffHandler) CreateStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -98,9 +95,7 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 // @Security ApiKeyAuth
 // @Param page query int false "Page number"
 // @Param per_page query int false "Items per page"
-// @Success 200 {object} helpers.ResponseForm{data=object{staffs=[]models.Staff,pagination=models.Pagination}}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /staff [get]
 func (h *staffHandler) GetStaffs() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -150,9 +145,7 @@ func (h *staffHandler) GetStaffs() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Staff ID"
-// @Success 200 {object} helpers.ResponseForm{data=models.Staff}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 404 {object} helpers.ResponseForm
+
 // @Router /staff/{id} [get]
 func (h *staffHandler) GetStaffByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -198,9 +191,7 @@ func (h *staffHandler) GetStaffByID() fiber.Handler {
 // @Security ApiKeyAuth
 // @Param id path int true "Staff ID"
 // @Param staff body models.StaffInput true "Staff Data"
-// @Success 200 {object} helpers.ResponseForm{data=models.Staff}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /staff/{id} [put]
 func (h *staffHandler) UpdateStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -264,9 +255,7 @@ func (h *staffHandler) UpdateStaff() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Staff ID"
-// @Success 200 {object} helpers.ResponseForm{data=string}
-// @Failure 400 {object} helpers.ResponseForm
-// @Failure 500 {object} helpers.ResponseForm
+
 // @Router /staff/{id} [delete]
 func (h *staffHandler) DeleteStaff() fiber.Handler {
 	return func(c *fiber.Ctx) error {
