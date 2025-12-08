@@ -41,7 +41,9 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	staffService := staff.NewStaffService(staffRepo)
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
 	authService := auth.NewAuthService(staffRepo, s.JwtResources)
-
+	groupApiV1.Get("/hello-world", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
 	// 🔓 Auth Routes (Public - No Authentication)
 	authGroup := groupApiV1.Group("/auth")
 	auth.NewAuthHandler(authGroup, authService, s.JwtResources)
