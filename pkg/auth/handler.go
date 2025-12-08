@@ -31,7 +31,6 @@ func NewAuthHandler(router fiber.Router, service domain.AuthService, jwtResource
 // @Accept  json
 // @Produce  json
 // @Param login body models.LoginRequest true "Login Credentials"
-
 // @Router /auth/login [post]
 func (h *authHandler) Login() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -95,7 +94,6 @@ func (h *authHandler) Login() fiber.Handler {
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
-
 // @Router /auth/me [get]
 func (h *authHandler) GetMe() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -143,7 +141,6 @@ func (h *authHandler) GetMe() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param body body object{old_password=string,new_password=string} true "Password Change Request"
-
 // @Router /auth/change-password [put]
 func (h *authHandler) ChangePassword() fiber.Handler {
 	return func(c *fiber.Ctx) error {

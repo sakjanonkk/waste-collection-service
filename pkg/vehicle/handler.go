@@ -34,7 +34,6 @@ func NewVehicleHandler(router fiber.Router, service domain.VehicleService) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param vehicle body models.VehicleInput true "Vehicle Data"
-
 // @Router /vehicles [post]
 func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -99,7 +98,6 @@ func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 // @Security ApiKeyAuth
 // @Param page query int false "Page number"
 // @Param per_page query int false "Items per page"
-
 // @Router /vehicles [get]
 func (h *vehicleHandler) GetVehicles() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -147,7 +145,6 @@ func (h *vehicleHandler) GetVehicles() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
-
 // @Router /vehicles/{id} [get]
 func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -193,7 +190,6 @@ func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
 // @Param vehicle body models.VehicleInput true "Vehicle Data"
-
 // @Router /vehicles/{id} [put]
 func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -276,7 +272,6 @@ func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
-
 // @Router /vehicles/{id} [delete]
 func (h *vehicleHandler) DeleteVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {

@@ -1,4 +1,26 @@
 basePath: /api/v1
+definitions:
+  models.VehicleInput:
+    properties:
+      current_driver_id:
+        type: integer
+      depreciation_value_per_year:
+        type: number
+      fuel_type:
+        type: string
+      last_reported_problem:
+        type: string
+      recyclable_waste_capacity_kg:
+        type: number
+      registration_number:
+        type: string
+      regular_waste_capacity_kg:
+        type: number
+      status:
+        type: string
+      vehicle_type:
+        type: string
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -34,16 +56,106 @@ paths:
       responses: {}
   /vehicles:
     get:
+      consumes:
+      - application/json
+      description: Get a list of all vehicles with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get all vehicles
+      tags:
+      - vehicles
     post:
+      consumes:
+      - application/json
+      description: Create a new vehicle with the provided details
+      parameters:
+      - description: Vehicle Data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/models.VehicleInput'
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new vehicle
+      tags:
+      - vehicles
   /vehicles/{id}:
     delete:
+      consumes:
+      - application/json
+      description: Delete a vehicle by its ID
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a vehicle
+      tags:
+      - vehicles
     get:
+      consumes:
+      - application/json
+      description: Get details of a specific vehicle by its ID
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a vehicle by ID
+      tags:
+      - vehicles
     put:
+      consumes:
+      - application/json
+      description: Update details of an existing vehicle
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Vehicle Data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/models.VehicleInput'
+      produces:
+      - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a vehicle
+      tags:
+      - vehicles
 schemes:
 - http
 - https
