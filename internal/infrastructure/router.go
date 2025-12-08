@@ -4,7 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/zercle/gofiber-skelton/internal/handlers"
 	"github.com/zercle/gofiber-skelton/pkg/auth"
+	"github.com/zercle/gofiber-skelton/pkg/collection_point"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/route"
 	"github.com/zercle/gofiber-skelton/pkg/staff"
 	"github.com/zercle/gofiber-skelton/pkg/vehicle"
 
@@ -31,6 +33,9 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 		s.MainDbConn.AutoMigrate(
 			&models.Staff{},
 			&models.Vehicle{},
+			&models.CollectionPoint{},
+			&models.Route{},
+			&models.RoutePoint{},
 		)
 		SeedDefaultAdmin(s.MainDbConn)
 		SeedTestData(s.MainDbConn)
@@ -39,10 +44,14 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	// Repositories
 	staffRepo := staff.NewStaffRepository(s.MainDbConn)
 	vehicleRepo := vehicle.NewVehicleRepository(s.MainDbConn)
+	collectionPointRepo := collection_point.NewCollectionPointRepository(s.MainDbConn)
+	routeRepo := route.NewRouteRepository(s.MainDbConn)
 
 	// Services
 	staffService := staff.NewStaffService(staffRepo)
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
+	collectionPointService := collection_point.NewCollectionPointService(collectionPointRepo)
+	routeService := route.NewRouteService(routeRepo)
 	authService := auth.NewAuthService(staffRepo, s.JwtResources)
 	// groupApiV1.Get("/hello-world", func(c *fiber.Ctx) error {
 	// 	return c.SendString("Hello, World!")
@@ -60,6 +69,16 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	vehicleGroup := groupApiV1.Group("/vehicles")
 	vehicleGroup.Use(auth.AuthMiddleware(s.JwtResources)) // Require login for all vehicle routes
 	vehicle.NewVehicleHandler(vehicleGroup, vehicleService)
+
+	// 🔐 Collection Point Routes (Protected - Authentication Required)
+	collectionPointGroup := groupApiV1.Group("/collection-points")
+	collectionPointGroup.Use(auth.AuthMiddleware(s.JwtResources))
+	collection_point.NewCollectionPointHandler(collectionPointGroup, collectionPointService)
+
+	// 🔐 Route Routes (Protected - Authentication Required)
+	routeGroup := groupApiV1.Group("/routes")
+	routeGroup.Use(auth.AuthMiddleware(s.JwtResources))
+	route.NewRouteHandler(routeGroup, routeService)
 
 	app.Static("*", "./web/build/index.html")
 }

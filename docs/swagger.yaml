@@ -1,5 +1,34 @@
 basePath: /api/v1
 definitions:
+  models.CollectionPointInput:
+    properties:
+      address:
+        type: string
+      image:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      problem_reported:
+        type: string
+      recycle_capacity:
+        type: number
+      regular_capacity:
+        type: number
+      status:
+        $ref: '#/definitions/models.CollectionPointStatus'
+    type: object
+  models.CollectionPointStatus:
+    enum:
+    - active
+    - inactive
+    type: string
+    x-enum-varnames:
+    - StatusPointActive
+    - StatusPointInactive
   models.LoginRequest:
     properties:
       email:
@@ -7,6 +36,43 @@ definitions:
       password:
         type: string
     type: object
+  models.RouteInput:
+    properties:
+      date:
+        description: YYYY-MM-DD
+        type: string
+      driver_id:
+        type: integer
+      notes:
+        type: string
+      points:
+        items:
+          $ref: '#/definitions/models.RoutePointInput'
+        type: array
+      status:
+        $ref: '#/definitions/models.RouteStatus'
+      vehicle_id:
+        type: integer
+    type: object
+  models.RoutePointInput:
+    properties:
+      point_id:
+        type: integer
+      sequence_order:
+        type: integer
+    type: object
+  models.RouteStatus:
+    enum:
+    - planned
+    - active
+    - completed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - RouteStatusPlanned
+    - RouteStatusActive
+    - RouteStatusComputeted
+    - RouteStatusCancelled
   models.StaffInput:
     properties:
       email:
@@ -141,6 +207,186 @@ paths:
       summary: Get current user info
       tags:
       - auth
+  /collection-points:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all collection points with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get all collection points
+      tags:
+      - collection-points
+    post:
+      consumes:
+      - application/json
+      description: Create a new collection point
+      parameters:
+      - description: Collection Point Data
+        in: body
+        name: collection_point
+        required: true
+        schema:
+          $ref: '#/definitions/models.CollectionPointInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new collection point
+      tags:
+      - collection-points
+  /collection-points/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a collection point by ID
+      parameters:
+      - description: Collection Point ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a collection point
+      tags:
+      - collection-points
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific collection point by ID
+      parameters:
+      - description: Collection Point ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a collection point by ID
+      tags:
+      - collection-points
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing collection point
+      parameters:
+      - description: Collection Point ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Collection Point Data
+        in: body
+        name: collection_point
+        required: true
+        schema:
+          $ref: '#/definitions/models.CollectionPointInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a collection point
+      tags:
+      - collection-points
+  /routes:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all routes with pagination and details
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get all routes
+      tags:
+      - routes
+    post:
+      consumes:
+      - application/json
+      description: Create a new route with initial points
+      parameters:
+      - description: Route Data
+        in: body
+        name: route
+        required: true
+        schema:
+          $ref: '#/definitions/models.RouteInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new route
+      tags:
+      - routes
+  /routes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a route by ID
+      parameters:
+      - description: Route ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a route
+      tags:
+      - routes
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific route by ID
+      parameters:
+      - description: Route ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a route by ID
+      tags:
+      - routes
   /staff:
     get:
       consumes:

@@ -108,6 +108,289 @@
                 "responses": {}
             }
         },
+        "/collection-points": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of all collection points with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collection-points"
+                ],
+                "summary": "Get all collection points",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new collection point",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collection-points"
+                ],
+                "summary": "Create a new collection point",
+                "parameters": [
+                    {
+                        "description": "Collection Point Data",
+                        "name": "collection_point",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CollectionPointInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/collection-points/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get details of a specific collection point by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collection-points"
+                ],
+                "summary": "Get a collection point by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collection Point ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update details of an existing collection point",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collection-points"
+                ],
+                "summary": "Update a collection point",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collection Point ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Collection Point Data",
+                        "name": "collection_point",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CollectionPointInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a collection point by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collection-points"
+                ],
+                "summary": "Delete a collection point",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Collection Point ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/routes": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of all routes with pagination and details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "routes"
+                ],
+                "summary": "Get all routes",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new route with initial points",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "routes"
+                ],
+                "summary": "Create a new route",
+                "parameters": [
+                    {
+                        "description": "Route Data",
+                        "name": "route",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RouteInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/routes/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get details of a specific route by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "routes"
+                ],
+                "summary": "Get a route by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Route ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a route by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "routes"
+                ],
+                "summary": "Delete a route",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Route ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/staff": {
             "get": {
                 "security": [
@@ -482,6 +765,49 @@
         }
     },
     "definitions": {
+        "models.CollectionPointInput": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "problem_reported": {
+                    "type": "string"
+                },
+                "recycle_capacity": {
+                    "type": "number"
+                },
+                "regular_capacity": {
+                    "type": "number"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.CollectionPointStatus"
+                }
+            }
+        },
+        "models.CollectionPointStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive"
+            ],
+            "x-enum-varnames": [
+                "StatusPointActive",
+                "StatusPointInactive"
+            ]
+        },
         "models.LoginRequest": {
             "type": "object",
             "properties": {
@@ -492,6 +818,59 @@
                     "type": "string"
                 }
             }
+        },
+        "models.RouteInput": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "description": "YYYY-MM-DD",
+                    "type": "string"
+                },
+                "driver_id": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "points": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RoutePointInput"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/models.RouteStatus"
+                },
+                "vehicle_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RoutePointInput": {
+            "type": "object",
+            "properties": {
+                "point_id": {
+                    "type": "integer"
+                },
+                "sequence_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RouteStatus": {
+            "type": "string",
+            "enum": [
+                "planned",
+                "active",
+                "completed",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "RouteStatusPlanned",
+                "RouteStatusActive",
+                "RouteStatusComputeted",
+                "RouteStatusCancelled"
+            ]
         },
         "models.StaffInput": {
             "type": "object",
