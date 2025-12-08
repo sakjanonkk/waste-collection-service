@@ -27,3 +27,10 @@ jwt:
   private: "./internal/assets/dev/jwt/privkey.pem"
   # openssl ec -in privkey.pem -pubout -out pubkey.pem
   public: "./internal/assets/dev/jwt/pubkey.pem"
+
+minio:
+  endpoint: "s3.mysterchat.com"
+  access_key: "admin"
+  secret_key: "va199uHavok4NU38DqucRZ5lflXRUeGD620YhMbwZBS0dtD8ds"
+  use_ssl: true
+  bucket: "waste"
