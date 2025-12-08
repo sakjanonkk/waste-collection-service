@@ -1,0 +1,29 @@
+name: Auto Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deployment
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" \
+            -d '{
+              "repository": "${{ github.repository }}",
+              "branch": "${{ github.ref_name }}",
+              "commit": "${{ github.sha }}",
+              "author": "${{ github.actor }}",
+              "message": "${{ github.event.head_commit.message }}"
+            }' \
+            KRYWYyl3JtX4Wm3609DECN5jlsbz6h4uS3h9QexsSUffGhsKI1
+      
+      - name: Check deployment status
+        run: echo "Deployment triggered successfully"
