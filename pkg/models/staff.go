@@ -31,7 +31,7 @@ type Staff struct {
 	LastName    string         `json:"lastname" gorm:"column:lastname;not null"`
 	Email       string         `json:"email" gorm:"column:email;not null;unique"`
 	Password    string         `json:"-" gorm:"column:password;not null"`
-	Role        StaffRole      `json:"role" gorm:"column:role;not null"` // ไม่ return ใน response
+	Role        StaffRole      `json:"role" gorm:"column:role;not null"`
 	Status      StaffStatus    `json:"status" gorm:"column:status;not null"`
 	PhoneNumber string         `json:"phone_number" gorm:"column:phone;not null"`
 	Picture     string         `json:"picture" gorm:"column:picture"`
