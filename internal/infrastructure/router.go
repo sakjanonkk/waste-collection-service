@@ -23,7 +23,7 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 		groupApiV1.Get("/", handlers.Index())
 	}
 
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	groupApiV1.Get("/swagger/*", swagger.HandlerDefault)
 
 	// auto migrate DB only on main process
 	if !fiber.IsChild() {
