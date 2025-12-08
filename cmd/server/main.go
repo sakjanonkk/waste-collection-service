@@ -34,7 +34,6 @@ var (
 
 func init() {
 	// read running flag
-	Testttst
 	if len(os.Getenv("ENV")) != 0 {
 		runEnv = os.Getenv("ENV")
 	} else {
