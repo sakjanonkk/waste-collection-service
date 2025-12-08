@@ -31,6 +31,8 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 			&models.Staff{},
 			&models.Vehicle{},
 		)
+		SeedDefaultAdmin(s.MainDbConn)
+		SeedTestData(s.MainDbConn)
 	}
 
 	// Repositories
