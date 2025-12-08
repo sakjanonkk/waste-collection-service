@@ -13,7 +13,7 @@ go-build:
 
 docker-build:
 	docker build -f ./cmd/server/Dockerfile \
-	-t zercle/gofiber-skeleton \
+	-t test \
 	--pull \
 	.
 
