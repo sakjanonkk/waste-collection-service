@@ -11,34 +11,16 @@ app:
     log: "./log"
 
 db:
-  mariadb:
-    sock: "/var/run/mysqld/mysqld.sock"
-    host: "localhost"
-    port: 3306
-    username: ""
-    password: ""
-    db_name: ""
-    conn:
-      min: 1
-      max: 2
   postgres:
     sock: "/var/run/postgresql"
-    host: "localhost"
+    host: "waste-postgres"
     port: 5432
-    username: ""
-    password: ""
-    db_name: ""
+    username: "postgres"
+    password: "1234"
+    db_name: "postgres"
     conn:
       min: 1
       max: 2
-  sqlite:
-    db_name: "file:app.db?cache=shared"
-  redis:
-    host: "localhost"
-    port: 6379
-    username: ""
-    password: ""
-    db_name: 0
 
 jwt:
   # openssl ecparam -name prime256v1 -genkey -noout -out privkey.pem
