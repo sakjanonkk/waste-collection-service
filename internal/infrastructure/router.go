@@ -6,6 +6,7 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/auth"
 	"github.com/zercle/gofiber-skelton/pkg/collection_point"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/request"
 	"github.com/zercle/gofiber-skelton/pkg/route"
 	"github.com/zercle/gofiber-skelton/pkg/staff"
 	"github.com/zercle/gofiber-skelton/pkg/vehicle"
@@ -36,6 +37,7 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 			&models.CollectionPoint{},
 			&models.Route{},
 			&models.RoutePoint{},
+			&models.Request{},
 		)
 		SeedDefaultAdmin(s.MainDbConn)
 		SeedTestData(s.MainDbConn)
@@ -46,12 +48,14 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	vehicleRepo := vehicle.NewVehicleRepository(s.MainDbConn)
 	collectionPointRepo := collection_point.NewCollectionPointRepository(s.MainDbConn)
 	routeRepo := route.NewRouteRepository(s.MainDbConn)
+	requestRepo := request.NewRequestRepository(s.MainDbConn)
 
 	// Services
 	staffService := staff.NewStaffService(staffRepo)
 	vehicleService := vehicle.NewVehicleService(vehicleRepo)
 	collectionPointService := collection_point.NewCollectionPointService(collectionPointRepo)
 	routeService := route.NewRouteService(routeRepo)
+	requestService := request.NewRequestService(requestRepo)
 	authService := auth.NewAuthService(staffRepo, s.JwtResources)
 	// groupApiV1.Get("/hello-world", func(c *fiber.Ctx) error {
 	// 	return c.SendString("Hello, World!")
@@ -79,6 +83,15 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 	routeGroup := groupApiV1.Group("/routes")
 	routeGroup.Use(auth.AuthMiddleware(s.JwtResources))
 	route.NewRouteHandler(routeGroup, routeService)
+
+	// 🔓 Request Routes (Public - Create Request)
+	requestGroupPublic := groupApiV1.Group("/requests")
+	request.NewRequestPublicHandler(requestGroupPublic, requestService)
+
+	// 🔐 Request Routes (Protected - Approve/Reject/Get)
+	requestGroup := groupApiV1.Group("/requests")
+	requestGroup.Use(auth.AuthMiddleware(s.JwtResources))
+	request.NewRequestProtectedHandler(requestGroup, requestService)
 
 	app.Static("*", "./web/build/index.html")
 }

@@ -36,6 +36,48 @@ definitions:
       password:
         type: string
     type: object
+  models.RequestInput:
+    properties:
+      created_by_id:
+        example: 1
+        type: integer
+      latitude:
+        example: 13.7563
+        type: number
+      longitude:
+        example: 100.5018
+        type: number
+      point_id:
+        example: 1
+        type: integer
+      point_image:
+        example: https://example.com/image.jpg
+        type: string
+      point_name:
+        example: Near Central Park
+        type: string
+      remarks:
+        example: Bin is full and overflowing
+        type: string
+      reporter_contact:
+        example: "0812345678"
+        type: string
+      reporter_name:
+        example: John Doe
+        type: string
+      request_type:
+        allOf:
+        - $ref: '#/definitions/models.RequestType'
+        example: report_problem
+    type: object
+  models.RequestType:
+    enum:
+    - report_problem
+    - request_point
+    type: string
+    x-enum-varnames:
+    - RequestTypeReportProblem
+    - RequestTypeRequestPoint
   models.RouteInput:
     properties:
       date:
@@ -309,6 +351,130 @@ paths:
       summary: Update a collection point
       tags:
       - collection-points
+  /requests:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all requests with pagination and filtering
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      - description: Filter by request type
+        in: query
+        name: request_type
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get all requests
+      tags:
+      - requests
+    post:
+      consumes:
+      - application/json
+      description: Create a new request (report problem or request point)
+      parameters:
+      - description: Request Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new request
+      tags:
+      - requests
+  /requests/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a request by ID
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a request
+      tags:
+      - requests
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific request
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get a request by ID
+      tags:
+      - requests
+  /requests/{id}/approve:
+    put:
+      consumes:
+      - application/json
+      description: Change request status to approved
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Approve a request
+      tags:
+      - requests
+  /requests/{id}/reject:
+    put:
+      consumes:
+      - application/json
+      description: Change request status to rejected
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Reject a request
+      tags:
+      - requests
   /routes:
     get:
       consumes:
