@@ -10,6 +10,7 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/models"
 )
 
+// test
 type collectionPointHandler struct {
 	service domain.CollectionPointService
 }
