@@ -47,7 +47,7 @@ func (h *routeHandler) CreateRoute() fiber.Handler {
 			})
 		}
 
-		route, err := h.service.CreateRoute(input)
+		routeResponse, err := h.service.CreateRoute(input)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
 				Success: false,
@@ -62,7 +62,7 @@ func (h *routeHandler) CreateRoute() fiber.Handler {
 
 		return c.Status(fiber.StatusCreated).JSON(helpers.ResponseForm{
 			Success: true,
-			Data:    route,
+			Data:    routeResponse,
 		})
 	}
 }
@@ -139,7 +139,7 @@ func (h *routeHandler) GetRouteByID() fiber.Handler {
 			})
 		}
 
-		route, err := h.service.GetRouteByID(uint(id))
+		routeResponse, err := h.service.GetRouteByID(uint(id))
 		if err != nil {
 			return c.Status(fiber.StatusNotFound).JSON(helpers.ResponseForm{
 				Success: false,
@@ -154,7 +154,7 @@ func (h *routeHandler) GetRouteByID() fiber.Handler {
 
 		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
 			Success: true,
-			Data:    route,
+			Data:    routeResponse,
 		})
 	}
 }

@@ -15,53 +15,74 @@ func NewRouteService(repo domain.RouteRepository) domain.RouteService {
 	return &routeService{repo: repo}
 }
 
-func (s *routeService) CreateRoute(input models.RouteInput) (models.Route, error) {
+func (s *routeService) CreateRoute(input models.RouteInput) (models.RouteResponse, error) {
 	route, err := input.ToRoute()
 	if err != nil {
-		return models.Route{}, err
+		return models.RouteResponse{}, err
 	}
 
 	// Validate (basic)
 	if route.DriverID == 0 {
-		return models.Route{}, errors.New("driver_id is required")
+		return models.RouteResponse{}, errors.New("driver_id is required")
 	}
 	if route.VehicleID == 0 {
-		return models.Route{}, errors.New("vehicle_id is required")
+		return models.RouteResponse{}, errors.New("vehicle_id is required")
 	}
 
-	// Create Route
+	// Prepare RoutePoints for atomic creation (GORM handles this if RoutePoints are in the struct)
+	if len(input.Points) > 0 {
+		route.RoutePoints = make([]models.RoutePoint, len(input.Points))
+		for i, p := range input.Points {
+			route.RoutePoints[i] = models.RoutePoint{
+				PointID:       p.PointID,
+				SequenceOrder: p.SequenceOrder,
+				Status:        models.RoutePointStatusPending,
+			}
+		}
+	}
+
 	createdRoute, err := s.repo.CreateRoute(route)
 	if err != nil {
-		return models.Route{}, err
+		return models.RouteResponse{}, err
 	}
 
-	// Create RoutePoints
-	for _, pointInput := range input.Points {
-		point := models.RoutePoint{
-			RouteID:       createdRoute.ID,
-			PointID:       pointInput.PointID,
-			SequenceOrder: pointInput.SequenceOrder,
-			Status:        models.RoutePointStatusPending,
-		}
-		if _, err := s.repo.AddRoutePoint(point); err != nil {
-			return createdRoute, err
-		}
+	// Fetch full details to return
+	fullRoute, err := s.repo.GetRouteByID(createdRoute.ID)
+	if err != nil {
+		return models.RouteResponse{}, err
 	}
 
-	// Return full route
-	return s.repo.GetRouteByID(createdRoute.ID)
+	return fullRoute.ToResponse(), nil
 }
 
-func (s *routeService) GetRoutes(pagination models.Pagination) ([]models.Route, models.Pagination, error) {
-	return s.repo.GetRoutes(pagination)
+func (s *routeService) GetRoutes(pagination models.Pagination) ([]models.RouteResponse, models.Pagination, error) {
+	routes, paginated, err := s.repo.GetRoutes(pagination)
+	if err != nil {
+		return nil, models.Pagination{}, err
+	}
+
+	routeResponses := make([]models.RouteResponse, len(routes))
+	for i, r := range routes {
+		routeResponses[i] = r.ToResponse()
+	}
+
+	return routeResponses, paginated, nil
 }
 
-func (s *routeService) GetRouteByID(id uint) (models.Route, error) {
-	return s.repo.GetRouteByID(id)
+func (s *routeService) GetRouteByID(id uint) (models.RouteResponse, error) {
+	route, err := s.repo.GetRouteByID(id)
+	if err != nil {
+		return models.RouteResponse{}, err
+	}
+	return route.ToResponse(), nil
 }
 
-func (s *routeService) UpdateRoute(route models.Route) (models.Route, error) {
-	return s.repo.UpdateRoute(route)
+func (s *routeService) UpdateRoute(route models.Route) (models.RouteResponse, error) {
+	updated, err := s.repo.UpdateRoute(route)
+	if err != nil {
+		return models.RouteResponse{}, err
+	}
+	return updated.ToResponse(), nil
 }
 
 func (s *routeService) DeleteRoute(id uint) error {

@@ -85,3 +85,83 @@ func (input *RouteInput) ToRoute() (Route, error) {
 		Notes:     input.Notes,
 	}, nil
 }
+
+type RouteResponse struct {
+	ID                   uint                 `json:"id"`
+	Date                 string               `json:"date"`
+	DriverID             uint                 `json:"driver_id"`
+	DriverName           string               `json:"driver_name"` // Composite
+	VehicleID            uint                 `json:"vehicle_id"`
+	VehicleRegistration  string               `json:"vehicle_registration"` // Composite
+	Status               RouteStatus          `json:"status"`
+	EstimatedDistance    float64              `json:"estimated_distance"`
+	EstimatedTime        float64              `json:"estimated_time"`
+	FuelCostEstimate     float64              `json:"fuel_cost_estimate"`
+	DepreciationEstimate float64              `json:"depreciation_estimate"`
+	Notes                string               `json:"notes"`
+	RoutePoints          []RoutePointResponse `json:"route_points,omitempty"`
+}
+
+type RoutePointResponse struct {
+	ID                 uint             `json:"id"`
+	RouteID            uint             `json:"route_id"`
+	PointID            uint             `json:"point_id"`
+	PointName          string           `json:"point_name"` // Composite
+	SequenceOrder      int              `json:"sequence_order"`
+	CollectedAt        *time.Time       `json:"collected_at"`
+	CollectedBy        string           `json:"collected_by"` // Composite name
+	RegularWasteAmount float64          `json:"regular_waste_amount"`
+	RecycleWasteAmount float64          `json:"recycle_waste_amount"`
+	WasteUnit          string           `json:"waste_unit"`
+	Status             RoutePointStatus `json:"status"`
+	Notes              string           `json:"notes"`
+}
+
+func (r *Route) ToResponse() RouteResponse {
+	resp := RouteResponse{
+		ID:                   r.ID,
+		Date:                 r.Date.Format("2006-01-02"),
+		DriverID:             r.DriverID,
+		VehicleID:            r.VehicleID,
+		Status:               r.Status,
+		EstimatedDistance:    r.EstimatedDistance,
+		EstimatedTime:        r.EstimatedTime,
+		FuelCostEstimate:     r.FuelCostEstimate,
+		DepreciationEstimate: r.DepreciationEstimate,
+		Notes:                r.Notes,
+	}
+
+	if r.Driver != nil {
+		resp.DriverName = r.Driver.FirstName + " " + r.Driver.LastName
+	}
+	if r.Vehicle != nil {
+		resp.VehicleRegistration = r.Vehicle.RegistrationNumber
+	}
+
+	if len(r.RoutePoints) > 0 {
+		resp.RoutePoints = make([]RoutePointResponse, len(r.RoutePoints))
+		for i, p := range r.RoutePoints {
+			pResp := RoutePointResponse{
+				ID:                 p.ID,
+				RouteID:            p.RouteID,
+				PointID:            p.PointID,
+				SequenceOrder:      p.SequenceOrder,
+				CollectedAt:        p.CollectedAt,
+				RegularWasteAmount: p.RegularWasteAmount,
+				RecycleWasteAmount: p.RecycleWasteAmount,
+				WasteUnit:          p.WasteUnit,
+				Status:             p.Status,
+				Notes:              p.Notes,
+			}
+			if p.Point != nil {
+				pResp.PointName = p.Point.Name
+			}
+			if p.CollectedBy != nil {
+				pResp.CollectedBy = p.CollectedBy.FirstName + " " + p.CollectedBy.LastName
+			}
+			resp.RoutePoints[i] = pResp
+		}
+	}
+
+	return resp
+}

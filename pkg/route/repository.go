@@ -29,6 +29,7 @@ func (r *routeRepository) GetRoutes(pagination models.Pagination) (routes []mode
 
 	// Preload driver, vehicle, and points
 	err = r.db.Preload("Driver").Preload("Vehicle").Preload("RoutePoints.Point").
+		Order("created_at desc").
 		Limit(pagination.PerPage).Offset((pagination.Page - 1) * pagination.PerPage).
 		Find(&routes).Error
 

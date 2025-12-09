@@ -15,9 +15,9 @@ type RouteRepository interface {
 }
 
 type RouteService interface {
-	CreateRoute(input models.RouteInput) (models.Route, error)
-	GetRoutes(pagination models.Pagination) ([]models.Route, models.Pagination, error)
-	GetRouteByID(id uint) (models.Route, error)
-	UpdateRoute(route models.Route) (models.Route, error)
+	CreateRoute(input models.RouteInput) (models.RouteResponse, error)
+	GetRoutes(pagination models.Pagination) ([]models.RouteResponse, models.Pagination, error)
+	GetRouteByID(id uint) (models.RouteResponse, error)
+	UpdateRoute(route models.Route) (models.RouteResponse, error)
 	DeleteRoute(id uint) error
 }
