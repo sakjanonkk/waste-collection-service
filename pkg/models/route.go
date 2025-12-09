@@ -90,26 +90,26 @@ type RouteResponse struct {
 	ID                   uint                 `json:"id"`
 	Date                 string               `json:"date"`
 	DriverID             uint                 `json:"driver_id"`
-	DriverName           string               `json:"driver_name"` // Composite
+	DriverName           string               `json:"driver_name"`
 	VehicleID            uint                 `json:"vehicle_id"`
-	VehicleRegistration  string               `json:"vehicle_registration"` // Composite
+	VehicleRegistration  string               `json:"vehicle_registration"`
 	Status               RouteStatus          `json:"status"`
 	EstimatedDistance    float64              `json:"estimated_distance"`
 	EstimatedTime        float64              `json:"estimated_time"`
 	FuelCostEstimate     float64              `json:"fuel_cost_estimate"`
 	DepreciationEstimate float64              `json:"depreciation_estimate"`
 	Notes                string               `json:"notes"`
-	RoutePoints          []RoutePointResponse `json:"route_points,omitempty"`
+	RoutePoints          []RoutePointResponse `json:"route_points"`
 }
 
 type RoutePointResponse struct {
 	ID                 uint             `json:"id"`
 	RouteID            uint             `json:"route_id"`
 	PointID            uint             `json:"point_id"`
-	PointName          string           `json:"point_name"` // Composite
+	PointName          string           `json:"point_name"`
 	SequenceOrder      int              `json:"sequence_order"`
 	CollectedAt        *time.Time       `json:"collected_at"`
-	CollectedBy        string           `json:"collected_by"` // Composite name
+	CollectedBy        string           `json:"collected_by"`
 	RegularWasteAmount float64          `json:"regular_waste_amount"`
 	RecycleWasteAmount float64          `json:"recycle_waste_amount"`
 	WasteUnit          string           `json:"waste_unit"`
