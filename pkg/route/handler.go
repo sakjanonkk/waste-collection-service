@@ -9,6 +9,7 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/models"
 )
 
+// test
 type routeHandler struct {
 	service domain.RouteService
 }
