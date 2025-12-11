@@ -3,6 +3,7 @@ package staff
 import (
 	"github.com/zercle/gofiber-skelton/pkg/domain"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +19,27 @@ func (r *staffRepository) CreateStaff(staffInput models.Staff) (staff models.Sta
 	err = r.db.Create(&staffInput).Error
 	if err != nil {
 		return staff, err
+	}
+	var existingRole models.Role
+	if err := r.db.Where("name = ?", utils.User).First(&existingRole).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return models.Staff{}, err
+		}
+		return models.Staff{}, err
+	}
+	var existingUserRole models.UserRole
+	if err := r.db.Where("user_id = ? AND role_id = ?", staffInput.ID, existingRole.ID).First(&existingUserRole).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			userRole := models.UserRole{
+				UserID: staffInput.ID,
+				RoleID: existingRole.ID,
+			}
+			if err := r.db.Create(&userRole).Error; err != nil {
+				return models.Staff{}, err
+			}
+		} else {
+			return models.Staff{}, err
+		}
 	}
 	return staffInput, nil
 }
