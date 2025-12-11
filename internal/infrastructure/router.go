@@ -15,6 +15,7 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/route"
 	"github.com/zercle/gofiber-skelton/pkg/staff"
 	"github.com/zercle/gofiber-skelton/pkg/user_role"
+	"github.com/zercle/gofiber-skelton/pkg/utils"
 	"github.com/zercle/gofiber-skelton/pkg/vehicle"
 
 	"github.com/gofiber/swagger"
@@ -48,6 +49,9 @@ func (s *Server) SetupRoutes(app *fiber.App) {
 		SeedDefaultAdmin(s.MainDbConn)
 		SeedTestData(s.MainDbConn)
 		if err := models.MigrateTablePermissions(s.MainDbConn); err != nil {
+			log.Panicf("Failed to migrate permissions: %v", err)
+		}
+		if err := utils.MigratePermission(s.MainDbConn); err != nil {
 			log.Panicf("Failed to migrate permissions: %v", err)
 		}
 	}
