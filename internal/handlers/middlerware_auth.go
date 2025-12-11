@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/golang-jwt/jwt/v4"
 	helpers "github.com/zercle/gofiber-helpers"
+	"gorm.io/gorm"
 )
 
 var ApiLimiter = limiter.New(limiter.Config{
@@ -95,6 +96,110 @@ func (r *RouterResources) ReqAuthHandler(reqLevels ...int) fiber.Handler {
 			log.Printf("%+v\nvalue: %+v", helpers.WhereAmI(), jwtToken)
 			return helpers.NewError(http.StatusUnauthorized, helpers.WhereAmI(), http.StatusText(http.StatusUnauthorized))
 		}
+		return c.Next()
+	}
+}
+
+func hasAllPerms(userPerms []string, required []string) bool {
+	set := make(map[string]struct{}, len(userPerms))
+	for _, p := range userPerms {
+		set[p] = struct{}{}
+	}
+	for _, r := range required {
+		if _, ok := set[r]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+func (r *RouterResources) ExtractPerms(userId string) ([]string, error) {
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		return nil, helpers.NewError(http.StatusBadRequest, helpers.WhereAmI(), "user ID malformed")
+	}
+	permissions, respErr := r.GetUserPermissions(uint(userIdInt))
+	if respErr != nil {
+		return nil, fmt.Errorf("failed to get user permissions: %s", respErr.Message)
+	}
+	return permissions, nil
+}
+func (r *RouterResources) GetUserPermissions(userId uint) ([]string, *helpers.ResponseError) {
+	type Result struct {
+		Pkg  string
+		Name string
+	}
+
+	var results []Result
+
+	err := r.MainDbConn.
+		Table("user_roles").
+		Select("permissions.pkg, permissions.name").
+		Joins("JOIN role_permissions ON role_permissions.role_id = user_roles.role_id").
+		Joins("JOIN permissions ON permissions.id = role_permissions.permission_id").
+		Where("user_roles.user_id = ?", userId).
+		Scan(&results).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound || len(results) == 0 {
+			return nil, &helpers.ResponseError{
+				Code:    fiber.StatusNotFound,
+				Source:  helpers.WhereAmI(),
+				Title:   "Not Found",
+				Message: "user has no permissions",
+			}
+		}
+		return nil, &helpers.ResponseError{
+			Code:    fiber.StatusInternalServerError,
+			Source:  helpers.WhereAmI(),
+			Title:   "Database Error",
+			Message: err.Error(),
+		}
+	}
+
+	userPerms := make([]string, 0, len(results))
+	for _, r := range results {
+		userPerms = append(userPerms, r.Pkg+":"+r.Name)
+	}
+	return userPerms, nil
+}
+func (r *RouterResources) ReqAuthPerms(requiredPerms ...string) fiber.Handler {
+	return func(c *fiber.Ctx) (err error) {
+		// Try Authorization header first, then fall back to query param
+		tokenStr, err := ExtractBearerToken(c.Get(fiber.HeaderAuthorization))
+		if err != nil {
+			// Fall back to query param for attachments (for img src, etc.)
+			tokenStr = c.Query("token")
+			if tokenStr == "" {
+				return helpers.NewError(http.StatusUnauthorized, helpers.WhereAmI(), "Authorization token required")
+			}
+		}
+		claims := new(jwt.RegisteredClaims)
+		jwtToken, err := jwt.ParseWithClaims(tokenStr, claims, r.JwtKeyfunc)
+		if err != nil {
+			return helpers.NewError(http.StatusUnauthorized, helpers.WhereAmI(), err.Error())
+		}
+		if jwtToken == nil || !jwtToken.Valid {
+			return helpers.NewError(http.StatusUnauthorized, helpers.WhereAmI(), http.StatusText(http.StatusUnauthorized))
+		}
+		userPerms, err := r.ExtractPerms(claims.Subject)
+		if err != nil {
+			return helpers.NewError(http.StatusUnauthorized, helpers.WhereAmI(), err.Error())
+		}
+		ok := hasAllPerms(userPerms, requiredPerms)
+		if !ok {
+			return c.Status(fiber.StatusForbidden).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{
+					{
+						Code:    fiber.StatusForbidden,
+						Source:  helpers.WhereAmI(),
+						Title:   "Forbidden",
+						Message: fmt.Sprintf("need permission(s): %v", requiredPerms),
+					},
+				},
+			})
+		}
+		c.Locals("user_id", claims.Subject)
 		return c.Next()
 	}
 }

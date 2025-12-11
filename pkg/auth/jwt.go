@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -19,21 +20,16 @@ type JwtClaims struct {
 
 // GenerateToken generates JWT token for staff
 func GenerateToken(jwtResources *models.JwtResources, staff models.Staff) (string, error) {
-	claims := JwtClaims{
-		StaffID: staff.ID,
-		Email:   staff.Email,
-		Role:    staff.Role,
-		Status:  staff.Status,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 24 hours
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "waste-management-api",
-		},
+	token := jwt.NewWithClaims(jwtResources.JwtSigningMethod, &jwt.RegisteredClaims{})
+	claims := token.Claims.(*jwt.RegisteredClaims)
+	claims.Subject = fmt.Sprintf("%d", staff.ID)
+	claims.Issuer = "waste.mysterchat.com"
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
+	signToken, err := token.SignedString(jwtResources.JwtSignKey)
+	if err != nil {
+		return "", err
 	}
-
-	token := jwt.NewWithClaims(jwtResources.JwtSigningMethod, claims)
-	return token.SignedString(jwtResources.JwtSignKey)
+	return signToken, nil
 }
 
 // ValidateToken validates JWT token and returns claims
