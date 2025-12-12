@@ -154,4 +154,5 @@ type Role string
 const (
 	Admin Role = "Admin"
 	User  Role = "User"
+	Guest Role = "Guest"
 )
