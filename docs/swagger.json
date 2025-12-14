@@ -320,9 +320,9 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a new request (report problem or request point)",
+                "description": "Create a new request (report problem or request point) with optional image upload",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -333,13 +333,65 @@
                 "summary": "Create a new request",
                 "parameters": [
                     {
-                        "description": "Request Data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.RequestInput"
-                        }
+                        "type": "string",
+                        "description": "Request Type (report_problem or request_point)",
+                        "name": "request_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Point ID",
+                        "name": "point_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Point Name",
+                        "name": "point_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "latitude",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "longitude",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Remarks",
+                        "name": "remarks",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Created By Staff ID",
+                        "name": "created_by_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Reporter Name",
+                        "name": "reporter_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Reporter Contact",
+                        "name": "reporter_contact",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Point Image",
+                        "name": "point_image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -1013,66 +1065,6 @@
                     "type": "string"
                 }
             }
-        },
-        "models.RequestInput": {
-            "type": "object",
-            "properties": {
-                "created_by_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 13.7563
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 100.5018
-                },
-                "point_id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "point_image": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                },
-                "point_name": {
-                    "type": "string",
-                    "example": "Near Central Park"
-                },
-                "remarks": {
-                    "type": "string",
-                    "example": "Bin is full and overflowing"
-                },
-                "reporter_contact": {
-                    "type": "string",
-                    "example": "0812345678"
-                },
-                "reporter_name": {
-                    "type": "string",
-                    "example": "John Doe"
-                },
-                "request_type": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.RequestType"
-                        }
-                    ],
-                    "example": "report_problem"
-                }
-            }
-        },
-        "models.RequestType": {
-            "type": "string",
-            "enum": [
-                "report_problem",
-                "request_point"
-            ],
-            "x-enum-varnames": [
-                "RequestTypeReportProblem",
-                "RequestTypeRequestPoint"
-            ]
         },
         "models.RouteInput": {
             "type": "object",
