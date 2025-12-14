@@ -20,11 +20,19 @@ type JwtClaims struct {
 
 // GenerateToken generates JWT token for staff
 func GenerateToken(jwtResources *models.JwtResources, staff models.Staff) (string, error) {
-	token := jwt.NewWithClaims(jwtResources.JwtSigningMethod, &jwt.RegisteredClaims{})
-	claims := token.Claims.(*jwt.RegisteredClaims)
-	claims.Subject = fmt.Sprintf("%d", staff.ID)
-	claims.Issuer = "waste.mysterchat.com"
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
+	claims := &JwtClaims{
+		StaffID: staff.ID,
+		Email:   staff.Email,
+		Role:    staff.Role,
+		Status:  staff.Status,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   fmt.Sprintf("%d", staff.ID),
+			Issuer:    "waste.mysterchat.com",
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwtResources.JwtSigningMethod, claims)
 	signToken, err := token.SignedString(jwtResources.JwtSignKey)
 	if err != nil {
 		return "", err
