@@ -1,12 +1,14 @@
 package request
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	helpers "github.com/zercle/gofiber-helpers"
 	"github.com/zercle/gofiber-skelton/pkg/domain"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/utils"
 )
 
 type requestHandler struct {
@@ -32,26 +34,75 @@ func NewRequestProtectedHandler(router fiber.Router, service domain.RequestServi
 
 // CreateRequest godoc
 // @Summary Create a new request
-// @Description Create a new request (report problem or request point)
+// @Description Create a new request (report problem or request point) with optional image upload
 // @Tags requests
-// @Accept  json
+// @Accept  multipart/form-data
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param request body models.RequestInput true "Request Data"
+// @Param request_type formData string true "Request Type (report_problem or request_point)"
+// @Param point_id formData int false "Point ID"
+// @Param point_name formData string false "Point Name"
+// @Param latitude formData number false "Latitude"
+// @Param longitude formData number false "Longitude"
+// @Param remarks formData string false "Remarks"
+// @Param created_by_id formData int false "Created By Staff ID"
+// @Param reporter_name formData string false "Reporter Name"
+// @Param reporter_contact formData string false "Reporter Contact"
+// @Param point_image formData file false "Point Image"
 // @Router /requests [post]
 func (h *requestHandler) CreateRequest() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var input models.RequestInput
-		if err := c.BodyParser(&input); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: err.Error(),
-				}},
-			})
+
+		// Parse form fields manually
+		input.RequestType = models.RequestType(c.FormValue("request_type"))
+		input.PointName = c.FormValue("point_name")
+		input.Remarks = c.FormValue("remarks")
+		input.ReporterName = c.FormValue("reporter_name")
+		input.ReporterContact = c.FormValue("reporter_contact")
+
+		if pointIDStr := c.FormValue("point_id"); pointIDStr != "" {
+			if id, err := strconv.ParseUint(pointIDStr, 10, 64); err == nil {
+				uid := uint(id)
+				input.PointID = &uid
+			}
+		}
+
+		if latStr := c.FormValue("latitude"); latStr != "" {
+			if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+				input.Latitude = lat
+			}
+		}
+
+		if longStr := c.FormValue("longitude"); longStr != "" {
+			if long, err := strconv.ParseFloat(longStr, 64); err == nil {
+				input.Longitude = long
+			}
+		}
+
+		if createdByStr := c.FormValue("created_by_id"); createdByStr != "" {
+			if id, err := strconv.ParseUint(createdByStr, 10, 64); err == nil {
+				uid := uint(id)
+				input.CreatedByID = &uid
+			}
+		}
+
+		// Handle file upload
+		file, err := c.FormFile("point_image")
+		if err == nil {
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+					Success: false,
+					Errors: []helpers.ResponseError{{
+						Code:    fiber.StatusInternalServerError,
+						Source:  helpers.WhereAmI(),
+						Title:   "Upload Error",
+						Message: "Failed to upload image: " + err.Error(),
+					}},
+				})
+			}
+			input.PointImage = url
 		}
 
 		resp, err := h.service.CreateRequest(input)

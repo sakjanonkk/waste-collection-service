@@ -22,6 +22,7 @@ type Vehicle struct {
 	FuelType                  string        `json:"fuel_type" gorm:"column:fuel_type"`
 	LastReportedProblem       *string       `json:"last_reported_problem,omitempty" gorm:"column:last_reported_problem"`
 	DepreciationValuePerYear  float64       `json:"depreciation_value_per_year" gorm:"column:depreciation_value_per_year"`
+	Image                     string        `json:"image" gorm:"column:image"`
 	CreatedAt                 time.Time     `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt                 time.Time     `json:"updated_at" gorm:"autoUpdateTime"`
 }
@@ -36,6 +37,7 @@ type VehicleInput struct {
 	FuelType                  string  `json:"fuel_type"`
 	LastReportedProblem       *string `json:"last_reported_problem,omitempty"`
 	DepreciationValuePerYear  float64 `json:"depreciation_value_per_year"`
+	Image                     string  `json:"image"`
 }
 
 func (input *VehicleInput) ToVehicle() Vehicle {
@@ -49,5 +51,6 @@ func (input *VehicleInput) ToVehicle() Vehicle {
 		FuelType:                  input.FuelType,
 		LastReportedProblem:       input.LastReportedProblem,
 		DepreciationValuePerYear:  input.DepreciationValuePerYear,
+		Image:                     input.Image,
 	}
 }

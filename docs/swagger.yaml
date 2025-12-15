@@ -36,48 +36,6 @@ definitions:
       password:
         type: string
     type: object
-  models.RequestInput:
-    properties:
-      created_by_id:
-        example: 1
-        type: integer
-      latitude:
-        example: 13.7563
-        type: number
-      longitude:
-        example: 100.5018
-        type: number
-      point_id:
-        example: 1
-        type: integer
-      point_image:
-        example: https://example.com/image.jpg
-        type: string
-      point_name:
-        example: Near Central Park
-        type: string
-      remarks:
-        example: Bin is full and overflowing
-        type: string
-      reporter_contact:
-        example: "0812345678"
-        type: string
-      reporter_name:
-        example: John Doe
-        type: string
-      request_type:
-        allOf:
-        - $ref: '#/definitions/models.RequestType'
-        example: report_problem
-    type: object
-  models.RequestType:
-    enum:
-    - report_problem
-    - request_point
-    type: string
-    x-enum-varnames:
-    - RequestTypeReportProblem
-    - RequestTypeRequestPoint
   models.RouteInput:
     properties:
       date:
@@ -167,6 +125,8 @@ definitions:
       depreciation_value_per_year:
         type: number
       fuel_type:
+        type: string
+      image:
         type: string
       last_reported_problem:
         type: string
@@ -383,15 +343,51 @@ paths:
       - requests
     post:
       consumes:
-      - application/json
-      description: Create a new request (report problem or request point)
+      - multipart/form-data
+      description: Create a new request (report problem or request point) with optional
+        image upload
       parameters:
-      - description: Request Data
-        in: body
-        name: request
+      - description: Request Type (report_problem or request_point)
+        in: formData
+        name: request_type
         required: true
-        schema:
-          $ref: '#/definitions/models.RequestInput'
+        type: string
+      - description: Point ID
+        in: formData
+        name: point_id
+        type: integer
+      - description: Point Name
+        in: formData
+        name: point_name
+        type: string
+      - description: Latitude
+        in: formData
+        name: latitude
+        type: number
+      - description: Longitude
+        in: formData
+        name: longitude
+        type: number
+      - description: Remarks
+        in: formData
+        name: remarks
+        type: string
+      - description: Created By Staff ID
+        in: formData
+        name: created_by_id
+        type: integer
+      - description: Reporter Name
+        in: formData
+        name: reporter_name
+        type: string
+      - description: Reporter Contact
+        in: formData
+        name: reporter_contact
+        type: string
+      - description: Point Image
+        in: formData
+        name: point_image
+        type: file
       produces:
       - application/json
       responses: {}
@@ -717,15 +713,52 @@ paths:
       - vehicles
     post:
       consumes:
-      - application/json
-      description: Create a new vehicle with the provided details
+      - multipart/form-data
+      description: Create a new vehicle with the provided details and optional image
       parameters:
-      - description: Vehicle Data
-        in: body
-        name: vehicle
+      - description: Registration Number
+        in: formData
+        name: registration_number
         required: true
-        schema:
-          $ref: '#/definitions/models.VehicleInput'
+        type: string
+      - description: Vehicle Type
+        in: formData
+        name: vehicle_type
+        required: true
+        type: string
+      - description: Status (active, in_maintenance, decommissioned)
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Regular Waste Capacity (Kg)
+        in: formData
+        name: regular_waste_capacity_kg
+        type: number
+      - description: Recyclable Waste Capacity (Kg)
+        in: formData
+        name: recyclable_waste_capacity_kg
+        type: number
+      - description: Current Driver ID
+        in: formData
+        name: current_driver_id
+        type: integer
+      - description: Fuel Type
+        in: formData
+        name: fuel_type
+        type: string
+      - description: Last Reported Problem
+        in: formData
+        name: last_reported_problem
+        type: string
+      - description: Depreciation Value Per Year
+        in: formData
+        name: depreciation_value_per_year
+        type: number
+      - description: Vehicle Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses: {}
