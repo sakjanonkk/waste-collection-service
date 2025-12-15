@@ -1,6 +1,7 @@
 package collection_point
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	helpers "github.com/zercle/gofiber-helpers"
 	"github.com/zercle/gofiber-skelton/pkg/domain"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/utils"
 )
 
 // test
@@ -27,26 +29,71 @@ func NewCollectionPointHandler(router fiber.Router, service domain.CollectionPoi
 
 // CreateCollectionPoint godoc
 // @Summary Create a new collection point
-// @Description Create a new collection point
+// @Description Create a new collection point with optional image
 // @Tags collection-points
-// @Accept  json
+// @Accept  multipart/form-data
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param collection_point body models.CollectionPointInput true "Collection Point Data"
+// @Param name formData string true "Name"
+// @Param latitude formData number true "Latitude"
+// @Param longitude formData number true "Longitude"
+// @Param address formData string false "Address"
+// @Param status formData string true "Status (active, inactive)"
+// @Param problem_reported formData string false "Problem Reported"
+// @Param regular_capacity formData number false "Regular Capacity"
+// @Param recycle_capacity formData number false "Recycle Capacity"
+// @Param image formData file false "Image"
 // @Router /collection-points [post]
 func (h *collectionPointHandler) CreateCollectionPoint() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var input models.CollectionPointInput
-		if err := json.Unmarshal(c.Body(), &input); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: err.Error(),
-				}},
-			})
+
+		// Parse form fields
+		input.Name = c.FormValue("name")
+		input.Address = c.FormValue("address")
+		input.Status = models.CollectionPointStatus(c.FormValue("status"))
+		input.ProblemReported = c.FormValue("problem_reported")
+
+		if val := c.FormValue("latitude"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.Latitude = f
+			}
+		}
+
+		if val := c.FormValue("longitude"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.Longitude = f
+			}
+		}
+
+		if val := c.FormValue("regular_capacity"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.RegularCapacity = f
+			}
+		}
+
+		if val := c.FormValue("recycle_capacity"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.RecycleCapacity = f
+			}
+		}
+
+		// Handle file upload
+		file, err := c.FormFile("image")
+		if err == nil {
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+					Success: false,
+					Errors: []helpers.ResponseError{{
+						Code:    fiber.StatusInternalServerError,
+						Source:  helpers.WhereAmI(),
+						Title:   "Upload Error",
+						Message: "Failed to upload image: " + err.Error(),
+					}},
+				})
+			}
+			input.Image = url
 		}
 
 		point, err := h.service.CreateCollectionPoint(input.ToCollectionPoint())
