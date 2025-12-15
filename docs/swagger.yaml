@@ -126,6 +126,8 @@ definitions:
         type: number
       fuel_type:
         type: string
+      image:
+        type: string
       last_reported_problem:
         type: string
       recyclable_waste_capacity_kg:
@@ -711,15 +713,52 @@ paths:
       - vehicles
     post:
       consumes:
-      - application/json
-      description: Create a new vehicle with the provided details
+      - multipart/form-data
+      description: Create a new vehicle with the provided details and optional image
       parameters:
-      - description: Vehicle Data
-        in: body
-        name: vehicle
+      - description: Registration Number
+        in: formData
+        name: registration_number
         required: true
-        schema:
-          $ref: '#/definitions/models.VehicleInput'
+        type: string
+      - description: Vehicle Type
+        in: formData
+        name: vehicle_type
+        required: true
+        type: string
+      - description: Status (active, in_maintenance, decommissioned)
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Regular Waste Capacity (Kg)
+        in: formData
+        name: regular_waste_capacity_kg
+        type: number
+      - description: Recyclable Waste Capacity (Kg)
+        in: formData
+        name: recyclable_waste_capacity_kg
+        type: number
+      - description: Current Driver ID
+        in: formData
+        name: current_driver_id
+        type: integer
+      - description: Fuel Type
+        in: formData
+        name: fuel_type
+        type: string
+      - description: Last Reported Problem
+        in: formData
+        name: last_reported_problem
+        type: string
+      - description: Depreciation Value Per Year
+        in: formData
+        name: depreciation_value_per_year
+        type: number
+      - description: Vehicle Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses: {}

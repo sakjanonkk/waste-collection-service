@@ -893,9 +893,9 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a new vehicle with the provided details",
+                "description": "Create a new vehicle with the provided details and optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -906,13 +906,67 @@ const docTemplate = `{
                 "summary": "Create a new vehicle",
                 "parameters": [
                     {
-                        "description": "Vehicle Data",
-                        "name": "vehicle",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.VehicleInput"
-                        }
+                        "type": "string",
+                        "description": "Registration Number",
+                        "name": "registration_number",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Vehicle Type",
+                        "name": "vehicle_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status (active, in_maintenance, decommissioned)",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Regular Waste Capacity (Kg)",
+                        "name": "regular_waste_capacity_kg",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Recyclable Waste Capacity (Kg)",
+                        "name": "recyclable_waste_capacity_kg",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Current Driver ID",
+                        "name": "current_driver_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fuel Type",
+                        "name": "fuel_type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Last Reported Problem",
+                        "name": "last_reported_problem",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Depreciation Value Per Year",
+                        "name": "depreciation_value_per_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Vehicle Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -1194,6 +1248,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "fuel_type": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 },
                 "last_reported_problem": {

@@ -1,8 +1,8 @@
 package vehicle
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -10,6 +10,7 @@ import (
 	helpers "github.com/zercle/gofiber-helpers"
 	"github.com/zercle/gofiber-skelton/pkg/domain"
 	"github.com/zercle/gofiber-skelton/pkg/models"
+	"github.com/zercle/gofiber-skelton/pkg/utils"
 )
 
 type vehicleHandler struct {
@@ -28,28 +29,77 @@ func NewVehicleHandler(router fiber.Router, service domain.VehicleService) {
 
 // CreateVehicle godoc
 // @Summary Create a new vehicle
-// @Description Create a new vehicle with the provided details
+// @Description Create a new vehicle with the provided details and optional image
 // @Tags vehicles
-// @Accept  json
+// @Accept  multipart/form-data
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param vehicle body models.VehicleInput true "Vehicle Data"
+// @Param registration_number formData string true "Registration Number"
+// @Param vehicle_type formData string true "Vehicle Type"
+// @Param status formData string true "Status (active, in_maintenance, decommissioned)"
+// @Param regular_waste_capacity_kg formData number false "Regular Waste Capacity (Kg)"
+// @Param recyclable_waste_capacity_kg formData number false "Recyclable Waste Capacity (Kg)"
+// @Param current_driver_id formData int false "Current Driver ID"
+// @Param fuel_type formData string false "Fuel Type"
+// @Param last_reported_problem formData string false "Last Reported Problem"
+// @Param depreciation_value_per_year formData number false "Depreciation Value Per Year"
+// @Param image formData file false "Vehicle Image"
 // @Router /vehicles [post]
 func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var vehicleInput models.VehicleInput
 
-		if err := json.Unmarshal(c.Body(), &vehicleInput); err != nil {
-			fmt.Printf("❌ Manual JSON Parse Error: %v\n", err)
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "JSON Parse Error",
-					Message: err.Error(),
-				}},
-			})
+		// Parse form fields
+		vehicleInput.RegistrationNumber = c.FormValue("registration_number")
+		vehicleInput.VehicleType = c.FormValue("vehicle_type")
+		vehicleInput.Status = c.FormValue("status")
+		vehicleInput.FuelType = c.FormValue("fuel_type")
+
+		if val := c.FormValue("last_reported_problem"); val != "" {
+			vehicleInput.LastReportedProblem = &val
+		}
+
+		if val := c.FormValue("regular_waste_capacity_kg"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				vehicleInput.RegularWasteCapacityKg = f
+			}
+		}
+
+		if val := c.FormValue("recyclable_waste_capacity_kg"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				vehicleInput.RecyclableWasteCapacityKg = f
+			}
+		}
+
+		if val := c.FormValue("depreciation_value_per_year"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				vehicleInput.DepreciationValuePerYear = f
+			}
+		}
+
+		if val := c.FormValue("current_driver_id"); val != "" {
+			if id, err := strconv.ParseUint(val, 10, 64); err == nil {
+				uid := uint(id)
+				vehicleInput.CurrentDriverID = &uid
+			}
+		}
+
+		// Handle file upload
+		file, err := c.FormFile("image")
+		if err == nil {
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+					Success: false,
+					Errors: []helpers.ResponseError{{
+						Code:    fiber.StatusInternalServerError,
+						Source:  helpers.WhereAmI(),
+						Title:   "Upload Error",
+						Message: "Failed to upload image: " + err.Error(),
+					}},
+				})
+			}
+			vehicleInput.Image = url
 		}
 
 		vehicleData := vehicleInput.ToVehicle()
