@@ -148,9 +148,9 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a new collection point",
+                "description": "Create a new collection point with optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -161,13 +161,62 @@
                 "summary": "Create a new collection point",
                 "parameters": [
                     {
-                        "description": "Collection Point Data",
-                        "name": "collection_point",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CollectionPointInput"
-                        }
+                        "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "latitude",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "longitude",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status (active, inactive)",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Problem Reported",
+                        "name": "problem_reported",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Regular Capacity",
+                        "name": "regular_capacity",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Recycle Capacity",
+                        "name": "recycle_capacity",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}

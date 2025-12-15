@@ -233,15 +233,49 @@ paths:
       - collection-points
     post:
       consumes:
-      - application/json
-      description: Create a new collection point
+      - multipart/form-data
+      description: Create a new collection point with optional image
       parameters:
-      - description: Collection Point Data
-        in: body
-        name: collection_point
+      - description: Name
+        in: formData
+        name: name
         required: true
-        schema:
-          $ref: '#/definitions/models.CollectionPointInput'
+        type: string
+      - description: Latitude
+        in: formData
+        name: latitude
+        required: true
+        type: number
+      - description: Longitude
+        in: formData
+        name: longitude
+        required: true
+        type: number
+      - description: Address
+        in: formData
+        name: address
+        type: string
+      - description: Status (active, inactive)
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Problem Reported
+        in: formData
+        name: problem_reported
+        type: string
+      - description: Regular Capacity
+        in: formData
+        name: regular_capacity
+        type: number
+      - description: Recycle Capacity
+        in: formData
+        name: recycle_capacity
+        type: number
+      - description: Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses: {}
