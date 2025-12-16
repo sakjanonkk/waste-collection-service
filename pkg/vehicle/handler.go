@@ -2,8 +2,8 @@ package vehicle
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
+
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -49,39 +49,17 @@ func (h *vehicleHandler) CreateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var vehicleInput models.VehicleInput
 
-		// Parse form fields
-		vehicleInput.RegistrationNumber = c.FormValue("registration_number")
-		vehicleInput.VehicleType = c.FormValue("vehicle_type")
-		vehicleInput.Status = c.FormValue("status")
-		vehicleInput.FuelType = c.FormValue("fuel_type")
-
-		if val := c.FormValue("last_reported_problem"); val != "" {
-			vehicleInput.LastReportedProblem = &val
-		}
-
-		if val := c.FormValue("regular_waste_capacity_kg"); val != "" {
-			if f, err := strconv.ParseFloat(val, 64); err == nil {
-				vehicleInput.RegularWasteCapacityKg = f
-			}
-		}
-
-		if val := c.FormValue("recyclable_waste_capacity_kg"); val != "" {
-			if f, err := strconv.ParseFloat(val, 64); err == nil {
-				vehicleInput.RecyclableWasteCapacityKg = f
-			}
-		}
-
-		if val := c.FormValue("depreciation_value_per_year"); val != "" {
-			if f, err := strconv.ParseFloat(val, 64); err == nil {
-				vehicleInput.DepreciationValuePerYear = f
-			}
-		}
-
-		if val := c.FormValue("current_driver_id"); val != "" {
-			if id, err := strconv.ParseUint(val, 10, 64); err == nil {
-				uid := uint(id)
-				vehicleInput.CurrentDriverID = &uid
-			}
+		// Parse form fields using BodyParser
+		if err := c.BodyParser(&vehicleInput); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusBadRequest,
+					Source:  helpers.WhereAmI(),
+					Title:   "Bad Request",
+					Message: "Invalid request body: " + err.Error(),
+				}},
+			})
 		}
 
 		// Handle file upload
@@ -235,18 +213,28 @@ func (h *vehicleHandler) GetVehicleByID() fiber.Handler {
 // @Summary Update a vehicle
 // @Description Update details of an existing vehicle
 // @Tags vehicles
-// @Accept  json
+// @Accept  multipart/form-data
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param id path int true "Vehicle ID"
-// @Param vehicle body models.VehicleInput true "Vehicle Data"
+// @Param registration_number formData string true "Registration Number"
+// @Param vehicle_type formData string true "Vehicle Type"
+// @Param status formData string true "Status (active, in_maintenance, decommissioned)"
+// @Param regular_waste_capacity_kg formData number false "Regular Waste Capacity (Kg)"
+// @Param recyclable_waste_capacity_kg formData number false "Recyclable Waste Capacity (Kg)"
+// @Param current_driver_id formData int false "Current Driver ID"
+// @Param fuel_type formData string false "Fuel Type"
+// @Param last_reported_problem formData string false "Last Reported Problem"
+// @Param depreciation_value_per_year formData number false "Depreciation Value Per Year"
+// @Param image formData file false "Vehicle Image"
 // @Router /vehicles/{id} [put]
 func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
 		var vehicleInput models.VehicleInput
 
-		if err := json.Unmarshal(c.Body(), &vehicleInput); err != nil {
+		// Parse form fields using BodyParser
+		if err := c.BodyParser(&vehicleInput); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
 				Success: false,
 				Errors: []helpers.ResponseError{{
@@ -256,6 +244,24 @@ func (h *vehicleHandler) UpdateVehicle() fiber.Handler {
 					Message: "Invalid request body: " + err.Error(),
 				}},
 			})
+		}
+
+		// Handle file upload
+		file, err := c.FormFile("image")
+		if err == nil {
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+					Success: false,
+					Errors: []helpers.ResponseError{{
+						Code:    fiber.StatusInternalServerError,
+						Source:  helpers.WhereAmI(),
+						Title:   "Upload Error",
+						Message: "Failed to upload image: " + err.Error(),
+					}},
+				})
+			}
+			vehicleInput.Image = url
 		}
 
 		parsedID, err := strconv.ParseUint(id, 10, 64)
