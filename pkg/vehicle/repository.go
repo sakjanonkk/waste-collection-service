@@ -71,6 +71,10 @@ func (r *vehicleRepository) UpdateVehicle(vehicleInput models.Vehicle) (vehicle 
 		"depreciation_value_per_year":  vehicleInput.DepreciationValuePerYear,
 	}
 
+	if vehicleInput.Image != "" {
+		updates["image"] = vehicleInput.Image
+	}
+
 	// ✅ จัดการ current_driver_id (รองรับการลบ driver)
 	if vehicleInput.CurrentDriverID == nil {
 		updates["current_driver_id"] = nil // set เป็น NULL

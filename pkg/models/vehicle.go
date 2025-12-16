@@ -28,16 +28,16 @@ type Vehicle struct {
 }
 
 type VehicleInput struct {
-	RegistrationNumber        string  `json:"registration_number"`
-	VehicleType               string  `json:"vehicle_type"`
-	Status                    string  `json:"status"`
-	RegularWasteCapacityKg    float64 `json:"regular_waste_capacity_kg"`
-	RecyclableWasteCapacityKg float64 `json:"recyclable_waste_capacity_kg"`
-	CurrentDriverID           *uint   `json:"current_driver_id,omitempty"`
-	FuelType                  string  `json:"fuel_type"`
-	LastReportedProblem       *string `json:"last_reported_problem,omitempty"`
-	DepreciationValuePerYear  float64 `json:"depreciation_value_per_year"`
-	Image                     string  `json:"image"`
+	RegistrationNumber        string  `json:"registration_number" form:"registration_number"`
+	VehicleType               string  `json:"vehicle_type" form:"vehicle_type"`
+	Status                    string  `json:"status" form:"status"`
+	RegularWasteCapacityKg    float64 `json:"regular_waste_capacity_kg" form:"regular_waste_capacity_kg"`
+	RecyclableWasteCapacityKg float64 `json:"recyclable_waste_capacity_kg" form:"recyclable_waste_capacity_kg"`
+	CurrentDriverID           *uint   `json:"current_driver_id,omitempty" form:"current_driver_id"`
+	FuelType                  string  `json:"fuel_type" form:"fuel_type"`
+	LastReportedProblem       *string `json:"last_reported_problem,omitempty" form:"last_reported_problem"`
+	DepreciationValuePerYear  float64 `json:"depreciation_value_per_year" form:"depreciation_value_per_year"`
+	Image                     string  `json:"image" form:"image"`
 }
 
 func (input *VehicleInput) ToVehicle() Vehicle {
