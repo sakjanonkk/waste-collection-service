@@ -2,7 +2,6 @@ package staff
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -212,17 +211,24 @@ func (h *staffHandler) UpdateStaff() fiber.Handler {
 		id := c.Params("id")
 		var staffInput models.StaffInput
 
-		// ✅ เปลี่ยนเป็น json.Unmarshal()
-		if err := json.Unmarshal(c.Body(), &staffInput); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: err.Error(),
-				}},
-			})
+		// Parse form fields manually
+		staffInput.Prefix = c.FormValue("prefix")
+		staffInput.FirstName = c.FormValue("firstname")
+		staffInput.LastName = c.FormValue("lastname")
+		staffInput.Email = c.FormValue("email")
+		staffInput.Password = c.FormValue("password")
+		staffInput.Role = models.StaffRole(c.FormValue("role"))
+		staffInput.Status = models.StaffStatus(c.FormValue("status"))
+		staffInput.PhoneNumber = c.FormValue("phone_number")
+
+		// Handle file upload
+		file, err := c.FormFile("picture")
+		if err == nil {
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return err
+			}
+			staffInput.Picture = url
 		}
 
 		parsedID, err := strconv.ParseUint(id, 10, 64)
