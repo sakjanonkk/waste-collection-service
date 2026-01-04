@@ -16,7 +16,7 @@ db:
     host: "waste-postgres"
     port: 5432
     username: "postgres"
-    password: "1234"
+    password: "A8ewbu5fyAl0XXDlwBP9oACiJOrrFPD51231zDaPEsq2glRUcW"
     db_name: "postgres"
     conn:
       min: 1
