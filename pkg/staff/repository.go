@@ -44,14 +44,28 @@ func (r *staffRepository) CreateStaff(staffInput models.Staff) (staff models.Sta
 	return staffInput, nil
 }
 
-func (r *staffRepository) GetStaffs(pagination models.Pagination) (staffs []models.Staff, paginated models.Pagination, err error) {
+func (r *staffRepository) GetStaffs(pagination models.Pagination, filter models.StaffFilter) (staffs []models.Staff, paginated models.Pagination, err error) {
+	query := r.db.Model(&models.Staff{})
+
+	// Apply filters
+	if filter.Search != "" {
+		searchTerm := "%" + filter.Search + "%"
+		query = query.Where("firstname LIKE ? OR lastname LIKE ? OR email LIKE ?", searchTerm, searchTerm, searchTerm)
+	}
+	if filter.Role != "" {
+		query = query.Where("role = ?", filter.Role)
+	}
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
+	}
+
 	var total int64
-	err = r.db.Model(&models.Staff{}).Count(&total).Error
+	err = query.Count(&total).Error
 	if err != nil {
 		return nil, models.Pagination{}, err
 	}
 	paginated.Total = total
-	err = r.db.Limit(pagination.PerPage).Offset((pagination.Page - 1) * pagination.PerPage).Find(&staffs).Error
+	err = query.Limit(pagination.PerPage).Offset((pagination.Page - 1) * pagination.PerPage).Find(&staffs).Error
 	if err != nil {
 		return nil, models.Pagination{}, err
 	}

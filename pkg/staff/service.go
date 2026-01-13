@@ -75,8 +75,8 @@ func (s *staffService) validateStaffInput(staff models.Staff) error {
 	return nil
 }
 
-func (s *staffService) GetStaffs(pagination models.Pagination) (staffs []models.Staff, paginated models.Pagination, err error) {
-	return s.repo.GetStaffs(pagination)
+func (s *staffService) GetStaffs(pagination models.Pagination, filter models.StaffFilter) (staffs []models.Staff, paginated models.Pagination, err error) {
+	return s.repo.GetStaffs(pagination, filter)
 }
 
 func (s *staffService) GetStaffByID(staffInput models.Staff) (staff models.Staff, err error) {

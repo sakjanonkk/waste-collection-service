@@ -8,3 +8,10 @@ type Search struct {
 func (s *Search) GetSearchString() string {
 	return "keyword=" + s.Keyword + "&column=" + s.Column
 }
+
+// StaffFilter contains filter parameters for staff list
+type StaffFilter struct {
+	Search string `query:"search"`
+	Role   string `query:"role"`
+	Status string `query:"status"`
+}

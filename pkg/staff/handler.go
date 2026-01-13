@@ -2,6 +2,7 @@ package staff
 
 import (
 	"context"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -11,6 +12,21 @@ import (
 	"github.com/zercle/gofiber-skelton/pkg/models"
 	"github.com/zercle/gofiber-skelton/pkg/utils"
 )
+
+// validatePhoneNumber checks if phone number is valid (max 10 digits, only numbers)
+func validatePhoneNumber(phone string) error {
+	if phone == "" {
+		return nil // Allow empty phone number
+	}
+	if len(phone) > 10 {
+		return fiber.NewError(fiber.StatusBadRequest, "หมายเลขโทรศัพท์ต้องไม่เกิน 10 หลัก")
+	}
+	matched, _ := regexp.MatchString(`^\d{1,10}$`, phone)
+	if !matched {
+		return fiber.NewError(fiber.StatusBadRequest, "หมายเลขโทรศัพท์ต้องเป็นตัวเลขเท่านั้น")
+	}
+	return nil
+}
 
 type staffHandler struct {
 	service domain.StaffService
@@ -56,6 +72,19 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 		staffInput.Role = models.StaffRole(c.FormValue("role"))
 		staffInput.Status = models.StaffStatus(c.FormValue("status"))
 		staffInput.PhoneNumber = c.FormValue("phone_number")
+
+		// Validate phone number format
+		if err := validatePhoneNumber(staffInput.PhoneNumber); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusBadRequest,
+					Source:  helpers.WhereAmI(),
+					Title:   "Validation Error",
+					Message: err.Error(),
+				}},
+			})
+		}
 
 		// Handle file upload
 		file, err := c.FormFile("picture")
@@ -104,13 +133,16 @@ func (h *staffHandler) CreateStaff() fiber.Handler {
 
 // GetStaffs godoc
 // @Summary Get all staff members
-// @Description Get a list of all staff members with pagination
+// @Description Get a list of all staff members with pagination and filter
 // @Tags staff
 // @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
 // @Param page query int false "Page number"
 // @Param per_page query int false "Items per page"
+// @Param search query string false "Search by name or email"
+// @Param role query string false "Filter by role"
+// @Param status query string false "Filter by status"
 // @Router /staff [get]
 func (h *staffHandler) GetStaffs() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -127,7 +159,11 @@ func (h *staffHandler) GetStaffs() fiber.Handler {
 			})
 		}
 
-		staffs, paginated, err := h.service.GetStaffs(pagination)
+		// Parse filter parameters
+		var filter models.StaffFilter
+		_ = c.QueryParser(&filter)
+
+		staffs, paginated, err := h.service.GetStaffs(pagination, filter)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
 				Success: false,
@@ -220,6 +256,19 @@ func (h *staffHandler) UpdateStaff() fiber.Handler {
 		staffInput.Role = models.StaffRole(c.FormValue("role"))
 		staffInput.Status = models.StaffStatus(c.FormValue("status"))
 		staffInput.PhoneNumber = c.FormValue("phone_number")
+
+		// Validate phone number format
+		if err := validatePhoneNumber(staffInput.PhoneNumber); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusBadRequest,
+					Source:  helpers.WhereAmI(),
+					Title:   "Validation Error",
+					Message: err.Error(),
+				}},
+			})
+		}
 
 		// Handle file upload
 		file, err := c.FormFile("picture")
