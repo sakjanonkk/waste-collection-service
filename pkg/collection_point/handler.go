@@ -2,7 +2,6 @@ package collection_point
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -234,16 +233,53 @@ func (h *collectionPointHandler) UpdateCollectionPoint() fiber.Handler {
 		}
 
 		var input models.CollectionPointInput
-		if err := json.Unmarshal(c.Body(), &input); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
-				Success: false,
-				Errors: []helpers.ResponseError{{
-					Code:    fiber.StatusBadRequest,
-					Source:  helpers.WhereAmI(),
-					Title:   "Bad Request",
-					Message: err.Error(),
-				}},
-			})
+
+		// Parse form fields
+		input.Name = c.FormValue("name")
+		input.Address = c.FormValue("address")
+		input.Status = models.CollectionPointStatus(c.FormValue("status"))
+		input.ProblemReported = c.FormValue("problem_reported")
+
+		if val := c.FormValue("latitude"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.Latitude = f
+			}
+		}
+
+		if val := c.FormValue("longitude"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.Longitude = f
+			}
+		}
+
+		if val := c.FormValue("regular_capacity"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.RegularCapacity = f
+			}
+		}
+
+		if val := c.FormValue("recycle_capacity"); val != "" {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				input.RecycleCapacity = f
+			}
+		}
+
+		// Handle file upload
+		file, err := c.FormFile("image")
+		if err == nil {
+			url, err := utils.UploadFileToMinio(context.Background(), file)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+					Success: false,
+					Errors: []helpers.ResponseError{{
+						Code:    fiber.StatusInternalServerError,
+						Source:  helpers.WhereAmI(),
+						Title:   "Upload Error",
+						Message: "Failed to upload image: " + err.Error(),
+					}},
+				})
+			}
+			input.Image = url
 		}
 
 		point := input.ToCollectionPoint()
