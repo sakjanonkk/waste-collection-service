@@ -20,7 +20,7 @@ func NewRouteHandler(router fiber.Router, service domain.RouteService) {
 	router.Post("/", handler.CreateRoute())
 	router.Get("/", handler.GetRoutes())
 	router.Get("/:id", handler.GetRouteByID())
-	// router.Put("/:id", handler.UpdateRoute())
+	router.Put("/:id", handler.UpdateRoute())
 	router.Delete("/:id", handler.DeleteRoute())
 }
 
@@ -199,6 +199,78 @@ func (h *routeHandler) DeleteRoute() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
 			Success: true,
 			Data:    "Route deleted successfully",
+		})
+	}
+}
+
+// UpdateRoute godoc
+// @Summary Update a route
+// @Description Update an existing route by ID
+// @Tags routes
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param id path int true "Route ID"
+// @Param route body models.RouteInput true "Route Data"
+// @Router /routes/{id} [put]
+func (h *routeHandler) UpdateRoute() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusBadRequest,
+					Source:  helpers.WhereAmI(),
+					Title:   "Invalid ID",
+					Message: "ID must be a positive integer",
+				}},
+			})
+		}
+
+		var input models.RouteInput
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusBadRequest,
+					Source:  helpers.WhereAmI(),
+					Title:   "Bad Request",
+					Message: err.Error(),
+				}},
+			})
+		}
+
+		route, err := input.ToRoute()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusBadRequest,
+					Source:  helpers.WhereAmI(),
+					Title:   "Bad Request",
+					Message: err.Error(),
+				}},
+			})
+		}
+		route.ID = uint(id)
+
+		updatedRoute, err := h.service.UpdateRoute(route)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(helpers.ResponseForm{
+				Success: false,
+				Errors: []helpers.ResponseError{{
+					Code:    fiber.StatusInternalServerError,
+					Source:  helpers.WhereAmI(),
+					Title:   "Internal Server Error",
+					Message: err.Error(),
+				}},
+			})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(helpers.ResponseForm{
+			Success: true,
+			Data:    updatedRoute,
 		})
 	}
 }

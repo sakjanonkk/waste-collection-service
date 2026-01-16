@@ -661,6 +661,43 @@ const docTemplate = `{
                 ],
                 "responses": {}
             },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing route by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "routes"
+                ],
+                "summary": "Update a route",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Route ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Route Data",
+                        "name": "route",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RouteInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
             "delete": {
                 "security": [
                     {
@@ -697,7 +734,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get a list of all staff members with pagination",
+                "description": "Get a list of all staff members with pagination and filter",
                 "consumes": [
                     "application/json"
                 ],
@@ -719,6 +756,24 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Items per page",
                         "name": "per_page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by name or email",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by role",
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
@@ -1058,7 +1113,7 @@ const docTemplate = `{
                 ],
                 "description": "Update details of an existing vehicle",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1076,13 +1131,67 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Vehicle Data",
-                        "name": "vehicle",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.VehicleInput"
-                        }
+                        "type": "string",
+                        "description": "Registration Number",
+                        "name": "registration_number",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Vehicle Type",
+                        "name": "vehicle_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status (active, in_maintenance, decommissioned)",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Regular Waste Capacity (Kg)",
+                        "name": "regular_waste_capacity_kg",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Recyclable Waste Capacity (Kg)",
+                        "name": "recyclable_waste_capacity_kg",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Current Driver ID",
+                        "name": "current_driver_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fuel Type",
+                        "name": "fuel_type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Last Reported Problem",
+                        "name": "last_reported_problem",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Depreciation Value Per Year",
+                        "name": "depreciation_value_per_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Vehicle Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {}
@@ -1286,41 +1395,6 @@ const docTemplate = `{
                 "StatusStaffInactive",
                 "StatusStaffOnLeave"
             ]
-        },
-        "models.VehicleInput": {
-            "type": "object",
-            "properties": {
-                "current_driver_id": {
-                    "type": "integer"
-                },
-                "depreciation_value_per_year": {
-                    "type": "number"
-                },
-                "fuel_type": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "last_reported_problem": {
-                    "type": "string"
-                },
-                "recyclable_waste_capacity_kg": {
-                    "type": "number"
-                },
-                "registration_number": {
-                    "type": "string"
-                },
-                "regular_waste_capacity_kg": {
-                    "type": "number"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "vehicle_type": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {

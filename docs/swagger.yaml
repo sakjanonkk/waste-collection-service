@@ -118,29 +118,6 @@ definitions:
     - StatusStaffActive
     - StatusStaffInactive
     - StatusStaffOnLeave
-  models.VehicleInput:
-    properties:
-      current_driver_id:
-        type: integer
-      depreciation_value_per_year:
-        type: number
-      fuel_type:
-        type: string
-      image:
-        type: string
-      last_reported_problem:
-        type: string
-      recyclable_waste_capacity_kg:
-        type: number
-      registration_number:
-        type: string
-      regular_waste_capacity_kg:
-        type: number
-      status:
-        type: string
-      vehicle_type:
-        type: string
-    type: object
 info:
   contact:
     email: support@swagger.io
@@ -583,11 +560,35 @@ paths:
       summary: Get a route by ID
       tags:
       - routes
+    put:
+      consumes:
+      - application/json
+      description: Update an existing route by ID
+      parameters:
+      - description: Route ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Route Data
+        in: body
+        name: route
+        required: true
+        schema:
+          $ref: '#/definitions/models.RouteInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a route
+      tags:
+      - routes
   /staff:
     get:
       consumes:
       - application/json
-      description: Get a list of all staff members with pagination
+      description: Get a list of all staff members with pagination and filter
       parameters:
       - description: Page number
         in: query
@@ -597,6 +598,18 @@ paths:
         in: query
         name: per_page
         type: integer
+      - description: Search by name or email
+        in: query
+        name: search
+        type: string
+      - description: Filter by role
+        in: query
+        name: role
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses: {}
@@ -840,7 +853,7 @@ paths:
       - vehicles
     put:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Update details of an existing vehicle
       parameters:
       - description: Vehicle ID
@@ -848,12 +861,49 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Vehicle Data
-        in: body
-        name: vehicle
+      - description: Registration Number
+        in: formData
+        name: registration_number
         required: true
-        schema:
-          $ref: '#/definitions/models.VehicleInput'
+        type: string
+      - description: Vehicle Type
+        in: formData
+        name: vehicle_type
+        required: true
+        type: string
+      - description: Status (active, in_maintenance, decommissioned)
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Regular Waste Capacity (Kg)
+        in: formData
+        name: regular_waste_capacity_kg
+        type: number
+      - description: Recyclable Waste Capacity (Kg)
+        in: formData
+        name: recyclable_waste_capacity_kg
+        type: number
+      - description: Current Driver ID
+        in: formData
+        name: current_driver_id
+        type: integer
+      - description: Fuel Type
+        in: formData
+        name: fuel_type
+        type: string
+      - description: Last Reported Problem
+        in: formData
+        name: last_reported_problem
+        type: string
+      - description: Depreciation Value Per Year
+        in: formData
+        name: depreciation_value_per_year
+        type: number
+      - description: Vehicle Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses: {}
